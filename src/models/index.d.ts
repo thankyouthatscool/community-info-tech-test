@@ -18,6 +18,7 @@ export declare class Pin {
   readonly description?: string | null;
   readonly lat: number;
   readonly lng: number;
+  readonly username: string;
   readonly userId: string;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;

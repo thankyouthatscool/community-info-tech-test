@@ -8,14 +8,15 @@ import {
   AppBar,
   BottomNavigation,
   BottomNavigationAction,
+  Button,
   IconButton,
   Toolbar,
   Typography,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { Amplify } from "aws-amplify";
-import { useCallback, useEffect, useState } from "react";
+import { Amplify, DataStore } from "aws-amplify";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Navigate,
   Routes,
@@ -26,14 +27,17 @@ import {
 
 import awsConfig from "./aws-exports";
 import { useAppDispatch, useAppSelector } from "./hooks";
+import { User } from "./models";
 import { MapRoute, MyPinsRoute, ProfileRoute } from "./routes";
-import { setCenter, setZoomLevel } from "./store";
+import { setCenter, setUserId, setUsername, setZoomLevel } from "./store";
 import { RootWrapper } from "./Styled";
 
 Amplify.configure(awsConfig);
 
 export const App = () => {
   const [bottomNavigationValue, setBottomNavigationValue] = useState<number>(0);
+
+  const initialLoadRef = useRef<boolean>(false);
 
   const dispatch = useAppDispatch();
   const { username } = useAppSelector(({ user }) => user);
@@ -58,6 +62,25 @@ export const App = () => {
     }
   }, [location]);
 
+  const loadUserData = async () => {
+    try {
+      initialLoadRef.current = true;
+      const user = await DataStore.query(User, (u) =>
+        u.email("eq", "test@email.com")
+      );
+      dispatch(setUsername(user[0].username));
+      dispatch(setUserId(user[0].id));
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  useEffect(() => {
+    if (!initialLoadRef.current) {
+      loadUserData();
+    }
+  }, [initialLoadRef]);
+
   const handleGetCurrentLocation = useCallback(() => {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -78,7 +101,13 @@ export const App = () => {
       <AppBar color="primary" position="static">
         <Toolbar>
           <Typography component="div" variant="h6" sx={{ flexGrow: 1 }}>
-            Hi, {username}
+            {username ? (
+              `Hi, ${username}`
+            ) : (
+              <Button color="secondary" variant="contained">
+                Please Login
+              </Button>
+            )}
           </Typography>
           {location.pathname === "/" && (
             <IconButton

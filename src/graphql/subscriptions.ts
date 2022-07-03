@@ -10,6 +10,7 @@ export const onCreatePin = /* GraphQL */ `
       description
       lat
       lng
+      username
       userId
       createdAt
       updatedAt
@@ -27,6 +28,7 @@ export const onUpdatePin = /* GraphQL */ `
       description
       lat
       lng
+      username
       userId
       createdAt
       updatedAt
@@ -44,6 +46,7 @@ export const onDeletePin = /* GraphQL */ `
       description
       lat
       lng
+      username
       userId
       createdAt
       updatedAt
@@ -66,6 +69,7 @@ export const onCreateUser = /* GraphQL */ `
           description
           lat
           lng
+          username
           userId
           createdAt
           updatedAt
@@ -97,6 +101,7 @@ export const onUpdateUser = /* GraphQL */ `
           description
           lat
           lng
+          username
           userId
           createdAt
           updatedAt
@@ -128,6 +133,7 @@ export const onDeleteUser = /* GraphQL */ `
           description
           lat
           lng
+          username
           userId
           createdAt
           updatedAt

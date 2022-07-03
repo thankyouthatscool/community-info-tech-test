@@ -50,24 +50,26 @@ export const MapRoute = () => {
   }, [handleGetCurrentLocation, initialLoadRef]);
 
   return (
-    <ContentWrapper>
-      <div
-        style={{
-          display: "flex",
+    <>
+      <ContentWrapper>
+        <div
+          style={{
+            display: "flex",
 
-          padding: "0.5rem",
-          position: "absolute",
+            padding: "0.5rem",
+            position: "absolute",
 
-          width: mobileMatch ? "100%" : "40%",
+            width: mobileMatch ? "100%" : "40%",
 
-          zIndex: 1,
-        }}
-      >
-        <Card elevation={9} style={{ flex: 1 }}>
-          <TextField fullWidth placeholder="Search Pins" />
-        </Card>
-      </div>
-      <Map />
-    </ContentWrapper>
+            zIndex: 1,
+          }}
+        >
+          <Card elevation={9} style={{ flex: 1 }}>
+            <TextField fullWidth placeholder="Search Pins" />
+          </Card>
+        </div>
+        <Map />
+      </ContentWrapper>
+    </>
   );
 };

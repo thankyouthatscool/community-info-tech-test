@@ -4,6 +4,7 @@ type Pin @model @auth(rules: [{allow: public}]) {
   description: String
   lat: Float!
   lng: Float!
+  username: String!
   userId: ID! @index(name: "byUser")
 }
 

@@ -1,9 +1,12 @@
 import { Status, Wrapper as MapWrapper } from "@googlemaps/react-wrapper";
 import { isLatLngLiteral } from "@googlemaps/typescript-guards";
+import { ArrowBackRounded } from "@mui/icons-material";
 import {
   Button,
   Drawer,
+  IconButton,
   TextField,
+  Typography,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
@@ -14,12 +17,11 @@ import {
   cloneElement,
   isValidElement,
   ReactNode,
-  useCallback,
   useEffect,
   useRef,
   useState,
 } from "react";
-import { useForm } from "react-hook-form";
+import { Resolver, useForm } from "react-hook-form";
 
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import { Pin } from "../../models";
@@ -42,24 +44,61 @@ interface CustomMapMouseEvent extends google.maps.MapMouseEvent {
 
 interface NewPinFormData {
   pinTitle: string;
-  pinDescription: string;
+  pinDescription?: string;
 }
+
+const formResolver: Resolver<NewPinFormData> = async (values) => {
+  return {
+    values: values.pinTitle ? values : {},
+    errors: !values.pinTitle
+      ? {
+          pinTitle: {
+            message: "Pin title is required",
+            type: "required",
+          },
+        }
+      : {},
+  };
+};
 
 export const Map = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
-  const [currentPin, setCurrentPin] = useState<google.maps.LatLng | null>(null);
+  const [newPin, setNewPin] = useState<google.maps.LatLng | null>(null);
+  const [selectedPinCoordinates, setSelectedPinCoordinates] =
+    useState<google.maps.LatLng | null>(null);
 
   const dispatch = useAppDispatch();
-  const { center, userMarkers, zoomLevel } = useAppSelector(({ map }) => map);
+  const {
+    center,
+    userId,
+    userMarkers,
+    userMarkersDetailed,
+    username,
+    zoomLevel,
+  } = useAppSelector(({ map, user }) => ({
+    center: map.center,
+    userId: user.userId,
+    userMarkers: map.userMarkers,
+    userMarkersDetailed: map.userMarkersDetailed,
+    username: user.username,
+    zoomLevel: map.zoomLevel,
+  }));
 
   const theme = useTheme();
   const mobileMatch = useMediaQuery(theme.breakpoints.down("md"));
 
-  const { handleSubmit, register, reset } = useForm<NewPinFormData>();
+  const {
+    formState: { errors },
+    handleSubmit,
+    register,
+    reset,
+  } = useForm<NewPinFormData>({
+    resolver: formResolver,
+  });
 
   const onClick = (e: CustomMapMouseEvent) => {
     dispatch(addUserMarker(e.latLng!));
-    setCurrentPin(() => e.latLng);
+    setNewPin(() => e.latLng);
     setIsDrawerOpen(() => true);
   };
 
@@ -69,33 +108,51 @@ export const Map = () => {
   };
 
   const onSubmit = handleSubmit(async (formData) => {
-    const currentPinData = currentPin?.toJSON();
-    try {
-      const saveRes = await DataStore.save(
-        new Pin({
-          lat: currentPinData?.lat!,
-          lng: currentPinData?.lng!,
-          title: formData.pinTitle,
-          userId: "d8c3c033-2944-4983-808f-de6a15bfd45e",
-          description: formData.pinDescription,
-        })
-      );
-      setIsDrawerOpen(() => false);
-      dispatch(
-        addUserMarkerDetailed({
-          description: formData.pinDescription,
-          id: saveRes.id,
-          lat: currentPinData?.lat!,
-          lng: currentPinData?.lng!,
-          title: formData.pinTitle,
-          userId: saveRes.userId,
-        })
-      );
-      reset();
-    } catch (err) {
-      console.log(err);
+    const currentPinData = newPin?.toJSON();
+    if (userId) {
+      try {
+        const saveRes = await DataStore.save(
+          new Pin({
+            description: formData.pinDescription,
+            lat: currentPinData?.lat!,
+            lng: currentPinData?.lng!,
+            title: formData.pinTitle,
+            userId: userId!,
+            username: username!,
+          })
+        );
+        setIsDrawerOpen(() => false);
+        dispatch(
+          addUserMarkerDetailed({
+            description: formData.pinDescription,
+            id: saveRes.id,
+            lat: currentPinData?.lat!,
+            lng: currentPinData?.lng!,
+            title: formData.pinTitle,
+            userId: saveRes.userId,
+            username: username!,
+          })
+        );
+        setNewPin(() => null);
+        reset();
+      } catch (err) {
+        console.log(err);
+      }
     }
   });
+
+  const handlePinCallback = (position: string) => {
+    const [lat, lng] = position
+      .split("")
+      .filter((char) => char !== "(")
+      .filter((char) => char !== ")")
+      .join("")
+      .split(", ")
+      .map((coordinate) => parseFloat(coordinate));
+
+    setSelectedPinCoordinates(() => new google.maps.LatLng(lat, lng));
+    setIsDrawerOpen(() => true);
+  };
 
   return (
     <Wrapper>
@@ -113,14 +170,15 @@ export const Map = () => {
           zoom={zoomLevel}
           style={{ flexGrow: "1", height: "100%" }}
         >
-          {userMarkers.map((latLng, i) => (
-            <Marker
-              id="1"
-              key={i}
-              onClickCallback={() => setIsDrawerOpen(() => true)}
-              position={latLng}
-            />
-          ))}
+          {userMarkers.map((latLng, i) => {
+            return (
+              <Marker
+                key={i}
+                onClickCallback={handlePinCallback}
+                position={latLng}
+              />
+            );
+          })}
         </MapComponent>
       </MapWrapper>
       {mobileMatch && (
@@ -130,47 +188,103 @@ export const Map = () => {
           open={isDrawerOpen}
           variant="temporary"
         >
-          <form onSubmit={onSubmit} style={{ padding: "1rem" }}>
-            <TextField fullWidth label="Title" {...register("pinTitle")} />
-            <TextField
-              fullWidth
-              label="Description"
-              multiline
-              rows={3}
-              style={{ marginTop: "1rem" }}
-              {...register("pinDescription")}
-            />
-            <div
-              style={{
-                display: "flex",
+          {newPin && (
+            <form onSubmit={onSubmit} style={{ padding: "1rem" }}>
+              <TextField
+                error={!!errors.pinTitle}
+                fullWidth
+                helperText={errors.pinTitle?.message}
+                label="Title"
+                {...register("pinTitle")}
+              />
+              <TextField
+                fullWidth
+                label="Description"
+                multiline
+                rows={3}
+                style={{ marginTop: "1rem" }}
+                {...register("pinDescription")}
+              />
+              <div
+                style={{
+                  display: "flex",
 
-                justifyContent: "end",
+                  justifyContent: "end",
 
-                marginTop: "1rem",
-              }}
-            >
-              <Button
-                color="warning"
-                onClick={() => {
-                  if (currentPin) dispatch(removeUserMarker(currentPin!));
-                  setCurrentPin(() => null);
-                  setIsDrawerOpen(() => false);
-                  reset();
+                  marginTop: "1rem",
                 }}
-                variant="outlined"
               >
-                Cancel
-              </Button>
-              <Button
-                color="primary"
-                style={{ marginLeft: "1rem" }}
-                type="submit"
-                variant="contained"
-              >
-                Save
-              </Button>
+                <Button
+                  color="warning"
+                  onClick={() => {
+                    if (newPin) dispatch(removeUserMarker(newPin!));
+                    setNewPin(() => null);
+                    setSelectedPinCoordinates(() => null);
+                    setIsDrawerOpen(() => false);
+                    reset();
+                  }}
+                  variant="outlined"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  color="primary"
+                  style={{ marginLeft: "1rem" }}
+                  type="submit"
+                  variant="contained"
+                >
+                  Save
+                </Button>
+              </div>
+            </form>
+          )}
+          {selectedPinCoordinates && (
+            <div style={{ display: "flex", padding: "1rem" }}>
+              <div>
+                <IconButton
+                  color="secondary"
+                  onClick={() => {
+                    setNewPin(() => null);
+                    setSelectedPinCoordinates(() => null);
+                    setIsDrawerOpen(() => false);
+                    reset();
+                  }}
+                >
+                  <ArrowBackRounded />
+                </IconButton>
+              </div>
+              <div style={{ marginLeft: "1rem" }}>
+                <Typography variant="h6">
+                  {
+                    userMarkersDetailed.find(
+                      (pin) =>
+                        pin.lat === selectedPinCoordinates.lat() &&
+                        pin.lng === selectedPinCoordinates.lng()
+                    )?.title
+                  }
+                </Typography>
+                <Typography variant="body1">
+                  {
+                    userMarkersDetailed.find(
+                      (pin) =>
+                        pin.lat === selectedPinCoordinates.lat() &&
+                        pin.lng === selectedPinCoordinates.lng()
+                    )?.description
+                  }
+                </Typography>
+                <Typography variant="body1">
+                  Posted by:{" "}
+                  {
+                    userMarkersDetailed.find(
+                      (pin) =>
+                        pin.lat === selectedPinCoordinates.lat() &&
+                        pin.lng === selectedPinCoordinates.lng()
+                    )?.username
+                  }
+                </Typography>
+              </div>
             </div>
-          </form>
+          )}
         </Drawer>
       )}
     </Wrapper>
@@ -234,22 +348,19 @@ const MapComponent = ({
 };
 
 interface CustomMarkerOptions extends google.maps.MarkerOptions {
-  id: string;
-  onClickCallback: () => void;
+  onClickCallback: (position: string) => void;
 }
 
 const Marker = (options: CustomMarkerOptions) => {
   const [marker, setMarker] = useState<google.maps.Marker>();
 
-  const { userMarkersDetailed } = useAppSelector(({ map }) => map);
-
-  const handleMarkerClick = (options: CustomMarkerOptions) => {
-    options.onClickCallback();
+  const handleMarkerClick = ({ position }: CustomMarkerOptions) => {
+    options.onClickCallback(position?.toString()!);
   };
 
   useEffect(() => {
     if (!marker) {
-      setMarker(new google.maps.Marker({ clickable: true, label: "S" }));
+      setMarker(new google.maps.Marker());
     }
 
     return () => {

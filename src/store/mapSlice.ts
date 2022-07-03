@@ -7,6 +7,7 @@ interface UserMarkerDetailed {
   lat: number | null | undefined;
   lng: number | null | undefined;
   userId: string;
+  username: string;
 }
 
 export interface MapState {
