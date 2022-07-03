@@ -10,6 +10,7 @@ export const getPin = /* GraphQL */ `
       description
       lat
       lng
+      username
       userId
       createdAt
       updatedAt
@@ -32,6 +33,7 @@ export const listPins = /* GraphQL */ `
         description
         lat
         lng
+        username
         userId
         createdAt
         updatedAt
@@ -63,6 +65,7 @@ export const syncPins = /* GraphQL */ `
         description
         lat
         lng
+        username
         userId
         createdAt
         updatedAt
@@ -88,6 +91,7 @@ export const getUser = /* GraphQL */ `
           description
           lat
           lng
+          username
           userId
           createdAt
           updatedAt
@@ -124,6 +128,7 @@ export const listUsers = /* GraphQL */ `
             description
             lat
             lng
+            username
             userId
             createdAt
             updatedAt
@@ -169,6 +174,7 @@ export const syncUsers = /* GraphQL */ `
             description
             lat
             lng
+            username
             userId
             createdAt
             updatedAt
