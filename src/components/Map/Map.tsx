@@ -30,6 +30,7 @@ import {
   addUserMarkerDetailed,
   setCenter,
   removeUserMarker,
+  setMarkers,
   setZoomLevel,
 } from "../../store";
 import { Wrapper } from "./Styled";
@@ -102,7 +103,22 @@ export const Map = () => {
     setIsDrawerOpen(() => true);
   };
 
+  const handleLoadPins = async (coordinates: google.maps.LatLngBounds) => {
+    const { north, east, south, west } = coordinates.toJSON();
+
+    try {
+      const res = await DataStore.query(Pin, (pin) =>
+        pin.lat("gt", south).lat("lt", north).lng("gt", west).lng("lt", east)
+      );
+
+      dispatch(setMarkers(res));
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   const onIdle = (m: google.maps.Map) => {
+    handleLoadPins(m.getBounds()!);
     dispatch(setCenter(m.getCenter()!.toJSON()));
     dispatch(setZoomLevel(m.getZoom()!));
   };
@@ -184,6 +200,7 @@ export const Map = () => {
       {mobileMatch && (
         <Drawer
           anchor="bottom"
+          disableRestoreFocus
           hideBackdrop
           open={isDrawerOpen}
           variant="temporary"
@@ -316,7 +333,7 @@ const MapComponent = ({
 
   useDeepCompareEffectForMaps(() => {
     if (map) {
-      map.setOptions(options);
+      map.setOptions({ ...options, minZoom: 10 });
     }
   }, [map, options]);
 

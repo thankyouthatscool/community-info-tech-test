@@ -36,6 +36,7 @@ Amplify.configure(awsConfig);
 
 export const App = () => {
   const [bottomNavigationValue, setBottomNavigationValue] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const initialLoadRef = useRef<boolean>(false);
 
@@ -63,6 +64,7 @@ export const App = () => {
   }, [location]);
 
   const loadUserData = async () => {
+    setIsLoading(() => true);
     try {
       initialLoadRef.current = true;
       const user = await DataStore.query(User, (u) =>
@@ -73,6 +75,7 @@ export const App = () => {
     } catch (err) {
       console.log(err);
     }
+    setIsLoading(() => false);
   };
 
   useEffect(() => {
@@ -101,9 +104,9 @@ export const App = () => {
       <AppBar color="primary" position="static">
         <Toolbar>
           <Typography component="div" variant="h6" sx={{ flexGrow: 1 }}>
-            {username ? (
-              `Hi, ${username}`
-            ) : (
+            {isLoading && "Loading..."}
+            {username && !isLoading && `Hi, ${username}`}
+            {!username && !isLoading && (
               <Button color="secondary" variant="contained">
                 Please Login
               </Button>

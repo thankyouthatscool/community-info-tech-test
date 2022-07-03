@@ -1,17 +1,24 @@
-import { Card, TextField, useMediaQuery, useTheme } from "@mui/material";
-import { DataStore } from "aws-amplify";
+import {
+  Card,
+  IconButton,
+  InputAdornment,
+  TextField,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
+import { CancelRounded } from "@mui/icons-material";
 import { useCallback, useEffect, useRef } from "react";
 
 import { Map } from "../../components";
-import { useAppDispatch } from "../../hooks";
-import { Pin } from "../../models";
-import { setCenter, setMarkers, setZoomLevel } from "../../store";
+import { useAppDispatch, useAppSelector } from "../../hooks";
+import { setCenter, setSearchTerm, setZoomLevel } from "../../store";
 import { ContentWrapper } from "./Styled";
 
 export const MapRoute = () => {
   const initialLoadRef = useRef<boolean>(false);
 
   const dispatch = useAppDispatch();
+  const { searchTerm } = useAppSelector(({ user }) => user);
 
   const theme = useTheme();
   const mobileMatch = useMediaQuery(theme.breakpoints.down("md"));
@@ -31,21 +38,10 @@ export const MapRoute = () => {
     );
   }, [dispatch]);
 
-  const handleLoadPins = async () => {
-    try {
-      const res = await DataStore.query(Pin);
-
-      dispatch(setMarkers(res));
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
   useEffect(() => {
     if (!initialLoadRef.current) {
       initialLoadRef.current = true;
       handleGetCurrentLocation();
-      handleLoadPins();
     }
   }, [handleGetCurrentLocation, initialLoadRef]);
 
@@ -65,7 +61,27 @@ export const MapRoute = () => {
           }}
         >
           <Card elevation={9} style={{ flex: 1 }}>
-            <TextField fullWidth placeholder="Search Pins" />
+            <TextField
+              fullWidth
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => {
+                        dispatch(setSearchTerm(""));
+                      }}
+                    >
+                      {searchTerm && <CancelRounded />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+              onChange={(e) => {
+                dispatch(setSearchTerm(e.target.value));
+              }}
+              placeholder="Search Pins"
+              value={searchTerm}
+            />
           </Card>
         </div>
         <Map />
