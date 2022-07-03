@@ -8,32 +8,55 @@ import {
   AppBar,
   BottomNavigation,
   BottomNavigationAction,
-  Button,
-  Card,
   IconButton,
-  TextField,
   Toolbar,
   Typography,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Amplify } from "aws-amplify";
+import { useCallback, useEffect, useState } from "react";
+import {
+  Navigate,
+  Routes,
+  Route,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 
-import { Map } from "./components";
+import awsConfig from "./aws-exports";
 import { useAppDispatch, useAppSelector } from "./hooks";
+import { MapRoute, MyPinsRoute, ProfileRoute } from "./routes";
 import { setCenter, setZoomLevel } from "./store";
-import { ContentWrapper, RootWrapper } from "./Styled";
+import { RootWrapper } from "./Styled";
+
+Amplify.configure(awsConfig);
 
 export const App = () => {
   const [bottomNavigationValue, setBottomNavigationValue] = useState<number>(0);
-
-  const initialLoadRef = useRef<boolean>(false);
 
   const dispatch = useAppDispatch();
   const { username } = useAppSelector(({ user }) => user);
 
   const theme = useTheme();
   const mobileMatch = useMediaQuery(theme.breakpoints.down("md"));
+
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (location.pathname) {
+      setBottomNavigationValue(
+        location.pathname === "/my-pins"
+          ? 1
+          : location.pathname === "/profile"
+          ? 2
+          : 0
+      );
+    } else {
+      setBottomNavigationValue(0);
+    }
+  }, [location]);
 
   const handleGetCurrentLocation = useCallback(() => {
     navigator.geolocation.getCurrentPosition(
@@ -50,13 +73,6 @@ export const App = () => {
     );
   }, [dispatch]);
 
-  useEffect(() => {
-    if (!initialLoadRef.current) {
-      initialLoadRef.current = true;
-      handleGetCurrentLocation();
-    }
-  }, [handleGetCurrentLocation, initialLoadRef]);
-
   return (
     <RootWrapper>
       <AppBar color="primary" position="static">
@@ -64,49 +80,41 @@ export const App = () => {
           <Typography component="div" variant="h6" sx={{ flexGrow: 1 }}>
             Hi, {username}
           </Typography>
-          <IconButton color="inherit" size="large">
-            <AccountCircle />
-          </IconButton>
+          {location.pathname === "/" && (
+            <IconButton
+              color="inherit"
+              onClick={handleGetCurrentLocation}
+              size="large"
+            >
+              <GpsFixed />
+            </IconButton>
+          )}
         </Toolbar>
       </AppBar>
-      <ContentWrapper>
-        <div
-          style={{
-            display: "flex",
-
-            padding: "0.5rem",
-            position: "absolute",
-
-            width: mobileMatch ? "100%" : "40%",
-
-            zIndex: 1,
-          }}
-        >
-          <Card elevation={9} style={{ flex: 1 }}>
-            <TextField fullWidth placeholder="Search Pins" />
-          </Card>
-          <Button
-            color="primary"
-            onClick={handleGetCurrentLocation}
-            size="small"
-            style={{ marginLeft: "0.5rem" }}
-            variant="contained"
-          >
-            <GpsFixed />
-          </Button>
-        </div>
-        <Map />
-      </ContentWrapper>
+      <Routes>
+        <Route element={<MapRoute />} path="/" />
+        <Route element={<MyPinsRoute />} path="/my-pins" />
+        <Route element={<ProfileRoute />} path="/profile" />
+        <Route element={<Navigate to="/" />} path="*" />
+      </Routes>
       {mobileMatch && (
         <BottomNavigation
           showLabels
           onChange={(_, newValue) => {
             setBottomNavigationValue(() => newValue);
+            if (newValue === 2) {
+              navigate("/profile");
+            } else if (newValue === 1) {
+              navigate("/my-pins");
+            } else {
+              navigate("/");
+            }
           }}
           value={bottomNavigationValue}
         >
           <BottomNavigationAction icon={<MapRounded />} label="Map" />
           <BottomNavigationAction icon={<PushPinRounded />} label="My Pins" />
+          <BottomNavigationAction icon={<AccountCircle />} label="Profile" />
         </BottomNavigation>
       )}
     </RootWrapper>

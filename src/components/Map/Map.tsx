@@ -41,8 +41,7 @@ export const Map = () => {
   return (
     <Wrapper>
       <MapWrapper
-        //   TODO: Remove
-        apiKey={"AIzaSyDVQvxGxaRUB_DDvGZDKgQ3sGdcQkjm6kM"}
+        apiKey={process.env.REACT_APP_GOOGLE_MAPS_API!}
         render={render}
       >
         <MapComponent
