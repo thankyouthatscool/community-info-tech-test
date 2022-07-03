@@ -1,18 +1,32 @@
 import { Status, Wrapper as MapWrapper } from "@googlemaps/react-wrapper";
 import { isLatLngLiteral } from "@googlemaps/typescript-guards";
+import {
+  Button,
+  Drawer,
+  TextField,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import { createCustomEqual } from "fast-equals";
 import {
   Children,
   cloneElement,
   isValidElement,
   ReactNode,
+  useCallback,
   useEffect,
   useRef,
   useState,
 } from "react";
 
 import { useAppDispatch, useAppSelector } from "../../hooks";
-import { setCenter, setZoomLevel } from "../../store";
+import {
+  addUserMarker,
+  addUserMarkerDetailed,
+  setCenter,
+  removeUserMarker,
+  setZoomLevel,
+} from "../../store";
 import { Wrapper } from "./Styled";
 
 const render = (status: Status) => {
@@ -20,23 +34,46 @@ const render = (status: Status) => {
 };
 
 export const Map = () => {
-  const [markers, setMarkers] = useState<google.maps.LatLng[]>([]);
+  const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
+  const [currentPin, setCurrentPin] = useState<google.maps.LatLng | null>(null);
 
   const dispatch = useAppDispatch();
-  const { center, zoomLevel } = useAppSelector(({ map }) => map);
+  const { center, userMarkers, userMarkersDetailed, zoomLevel } =
+    useAppSelector(({ map }) => map);
 
+  const theme = useTheme();
+  const mobileMatch = useMediaQuery(theme.breakpoints.down("md"));
   interface CustomMapMouseEvent extends google.maps.MapMouseEvent {
     placeId?: string;
   }
 
   const onClick = (e: CustomMapMouseEvent) => {
-    if (!e.placeId) setMarkers([...markers, e.latLng!]);
+    if (!e.placeId) {
+      dispatch(addUserMarker(e.latLng!));
+      setCurrentPin(() => e.latLng);
+      setIsDrawerOpen(() => true);
+    }
   };
 
   const onIdle = (m: google.maps.Map) => {
     dispatch(setCenter(m.getCenter()!.toJSON()));
     dispatch(setZoomLevel(m.getZoom()!));
   };
+
+  const handleSave = useCallback(async () => {
+    const currentPinData = currentPin?.toJSON();
+    setIsDrawerOpen(() => false);
+    dispatch(
+      addUserMarkerDetailed({
+        description: "s",
+        id: "1",
+        lat: currentPinData?.lat!,
+        lng: currentPinData?.lng!,
+        title: "s",
+        userId: "1",
+      })
+    );
+  }, [currentPin]);
 
   return (
     <Wrapper>
@@ -54,11 +91,63 @@ export const Map = () => {
           zoom={zoomLevel}
           style={{ flexGrow: "1", height: "100%" }}
         >
-          {markers.map((latLng, i) => (
-            <Marker key={i} position={latLng} />
+          {userMarkers.map((latLng, i) => (
+            <Marker
+              id="1"
+              key={i}
+              onClickCallback={() => setIsDrawerOpen(() => true)}
+              position={latLng}
+            />
           ))}
         </MapComponent>
       </MapWrapper>
+      {mobileMatch && (
+        <Drawer anchor="bottom" hideBackdrop open={isDrawerOpen}>
+          <form
+            onSubmit={(e) => e.preventDefault()}
+            style={{ padding: "1rem" }}
+          >
+            <TextField fullWidth label="Title" />
+            <TextField
+              fullWidth
+              label="Description"
+              multiline
+              rows={3}
+              style={{ marginTop: "1rem" }}
+            />
+            <div
+              style={{
+                display: "flex",
+
+                justifyContent: "end",
+
+                marginTop: "1rem",
+              }}
+            >
+              <Button
+                color="warning"
+                onClick={() => {
+                  if (currentPin) dispatch(removeUserMarker(currentPin!));
+                  setCurrentPin(() => null);
+                  setIsDrawerOpen(() => false);
+                }}
+                variant="outlined"
+              >
+                Cancel
+              </Button>
+              <Button
+                color="primary"
+                onClick={handleSave}
+                style={{ marginLeft: "1rem" }}
+                type="submit"
+                variant="contained"
+              >
+                Save
+              </Button>
+            </div>
+          </form>
+        </Drawer>
+      )}
     </Wrapper>
   );
 };
@@ -119,7 +208,12 @@ const MapComponent = ({
   );
 };
 
-const Marker = (options: google.maps.MarkerOptions) => {
+interface CustomMarkerOptions extends google.maps.MarkerOptions {
+  id: string;
+  onClickCallback: () => void;
+}
+
+const Marker = (options: CustomMarkerOptions) => {
   const [marker, setMarker] = useState<google.maps.Marker>();
 
   useEffect(() => {
@@ -137,6 +231,11 @@ const Marker = (options: google.maps.MarkerOptions) => {
   useEffect(() => {
     if (marker) {
       marker.setOptions(options);
+
+      marker.addListener("click", () => {
+        console.log(options);
+        options.onClickCallback();
+      });
     }
   }, [marker, options]);
 

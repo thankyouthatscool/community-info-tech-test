@@ -4,6 +4,8 @@ import mapReducer from "./mapSlice";
 import userReducer from "./userSlice";
 
 export const store = configureStore({
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({ serializableCheck: false }),
   reducer: {
     map: mapReducer,
     user: userReducer,
