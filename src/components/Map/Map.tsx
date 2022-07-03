@@ -13,6 +13,7 @@ import {
   cloneElement,
   isValidElement,
   ReactNode,
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -21,6 +22,7 @@ import {
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import {
   addUserMarker,
+  addUserMarkerDetailed,
   setCenter,
   removeUserMarker,
   setZoomLevel,
@@ -36,7 +38,8 @@ export const Map = () => {
   const [currentPin, setCurrentPin] = useState<google.maps.LatLng | null>(null);
 
   const dispatch = useAppDispatch();
-  const { center, userMarkers, zoomLevel } = useAppSelector(({ map }) => map);
+  const { center, userMarkers, userMarkersDetailed, zoomLevel } =
+    useAppSelector(({ map }) => map);
 
   const theme = useTheme();
   const mobileMatch = useMediaQuery(theme.breakpoints.down("md"));
@@ -45,15 +48,32 @@ export const Map = () => {
   }
 
   const onClick = (e: CustomMapMouseEvent) => {
-    if (!e.placeId) dispatch(addUserMarker(e.latLng!));
-    setCurrentPin(() => e.latLng);
-    setIsDrawerOpen(() => true);
+    if (!e.placeId) {
+      dispatch(addUserMarker(e.latLng!));
+      setCurrentPin(() => e.latLng);
+      setIsDrawerOpen(() => true);
+    }
   };
 
   const onIdle = (m: google.maps.Map) => {
     dispatch(setCenter(m.getCenter()!.toJSON()));
     dispatch(setZoomLevel(m.getZoom()!));
   };
+
+  const handleSave = useCallback(async () => {
+    const currentPinData = currentPin?.toJSON();
+    setIsDrawerOpen(() => false);
+    dispatch(
+      addUserMarkerDetailed({
+        description: "s",
+        id: "1",
+        lat: currentPinData?.lat!,
+        lng: currentPinData?.lng!,
+        title: "s",
+        userId: "1",
+      })
+    );
+  }, [currentPin]);
 
   return (
     <Wrapper>
@@ -72,7 +92,12 @@ export const Map = () => {
           style={{ flexGrow: "1", height: "100%" }}
         >
           {userMarkers.map((latLng, i) => (
-            <Marker key={i} position={latLng} />
+            <Marker
+              id="1"
+              key={i}
+              onClickCallback={() => setIsDrawerOpen(() => true)}
+              position={latLng}
+            />
           ))}
         </MapComponent>
       </MapWrapper>
@@ -102,7 +127,8 @@ export const Map = () => {
               <Button
                 color="warning"
                 onClick={() => {
-                  dispatch(removeUserMarker(currentPin!));
+                  if (currentPin) dispatch(removeUserMarker(currentPin!));
+                  setCurrentPin(() => null);
                   setIsDrawerOpen(() => false);
                 }}
                 variant="outlined"
@@ -111,7 +137,7 @@ export const Map = () => {
               </Button>
               <Button
                 color="primary"
-                onClick={() => setIsDrawerOpen(() => false)}
+                onClick={handleSave}
                 style={{ marginLeft: "1rem" }}
                 type="submit"
                 variant="contained"
@@ -182,7 +208,12 @@ const MapComponent = ({
   );
 };
 
-const Marker = (options: google.maps.MarkerOptions) => {
+interface CustomMarkerOptions extends google.maps.MarkerOptions {
+  id: string;
+  onClickCallback: () => void;
+}
+
+const Marker = (options: CustomMarkerOptions) => {
   const [marker, setMarker] = useState<google.maps.Marker>();
 
   useEffect(() => {
@@ -200,6 +231,11 @@ const Marker = (options: google.maps.MarkerOptions) => {
   useEffect(() => {
     if (marker) {
       marker.setOptions(options);
+
+      marker.addListener("click", () => {
+        console.log(options);
+        options.onClickCallback();
+      });
     }
   }, [marker, options]);
 

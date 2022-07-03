@@ -2,18 +2,18 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-export const createPins = /* GraphQL */ `
-  mutation CreatePins(
-    $input: CreatePinsInput!
-    $condition: ModelPinsConditionInput
+export const createPin = /* GraphQL */ `
+  mutation CreatePin(
+    $input: CreatePinInput!
+    $condition: ModelPinConditionInput
   ) {
-    createPins(input: $input, condition: $condition) {
+    createPin(input: $input, condition: $condition) {
       id
       title
       description
       lat
       lng
-      userID
+      userId
       createdAt
       updatedAt
       _version
@@ -22,18 +22,18 @@ export const createPins = /* GraphQL */ `
     }
   }
 `;
-export const updatePins = /* GraphQL */ `
-  mutation UpdatePins(
-    $input: UpdatePinsInput!
-    $condition: ModelPinsConditionInput
+export const updatePin = /* GraphQL */ `
+  mutation UpdatePin(
+    $input: UpdatePinInput!
+    $condition: ModelPinConditionInput
   ) {
-    updatePins(input: $input, condition: $condition) {
+    updatePin(input: $input, condition: $condition) {
       id
       title
       description
       lat
       lng
-      userID
+      userId
       createdAt
       updatedAt
       _version
@@ -42,18 +42,18 @@ export const updatePins = /* GraphQL */ `
     }
   }
 `;
-export const deletePins = /* GraphQL */ `
-  mutation DeletePins(
-    $input: DeletePinsInput!
-    $condition: ModelPinsConditionInput
+export const deletePin = /* GraphQL */ `
+  mutation DeletePin(
+    $input: DeletePinInput!
+    $condition: ModelPinConditionInput
   ) {
-    deletePins(input: $input, condition: $condition) {
+    deletePin(input: $input, condition: $condition) {
       id
       title
       description
       lat
       lng
-      userID
+      userId
       createdAt
       updatedAt
       _version
@@ -69,8 +69,8 @@ export const createUser = /* GraphQL */ `
   ) {
     createUser(input: $input, condition: $condition) {
       id
-      username
       email
+      username
       Pins {
         items {
           id
@@ -78,7 +78,7 @@ export const createUser = /* GraphQL */ `
           description
           lat
           lng
-          userID
+          userId
           createdAt
           updatedAt
           _version
@@ -103,8 +103,8 @@ export const updateUser = /* GraphQL */ `
   ) {
     updateUser(input: $input, condition: $condition) {
       id
-      username
       email
+      username
       Pins {
         items {
           id
@@ -112,7 +112,7 @@ export const updateUser = /* GraphQL */ `
           description
           lat
           lng
-          userID
+          userId
           createdAt
           updatedAt
           _version
@@ -137,8 +137,8 @@ export const deleteUser = /* GraphQL */ `
   ) {
     deleteUser(input: $input, condition: $condition) {
       id
-      username
       email
+      username
       Pins {
         items {
           id
@@ -146,7 +146,7 @@ export const deleteUser = /* GraphQL */ `
           description
           lat
           lng
-          userID
+          userId
           createdAt
           updatedAt
           _version

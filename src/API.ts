@@ -2,25 +2,25 @@
 /* eslint-disable */
 //  This file was automatically generated and should not be edited.
 
-export type CreatePinsInput = {
+export type CreatePinInput = {
   id?: string | null,
   title: string,
   description?: string | null,
-  lat: number,
-  lng: string,
-  userID: string,
+  lat?: number | null,
+  lng: number,
+  userId: string,
   _version?: number | null,
 };
 
-export type ModelPinsConditionInput = {
+export type ModelPinConditionInput = {
   title?: ModelStringInput | null,
   description?: ModelStringInput | null,
   lat?: ModelFloatInput | null,
-  lng?: ModelStringInput | null,
-  userID?: ModelIDInput | null,
-  and?: Array< ModelPinsConditionInput | null > | null,
-  or?: Array< ModelPinsConditionInput | null > | null,
-  not?: ModelPinsConditionInput | null,
+  lng?: ModelFloatInput | null,
+  userId?: ModelIDInput | null,
+  and?: Array< ModelPinConditionInput | null > | null,
+  or?: Array< ModelPinConditionInput | null > | null,
+  not?: ModelPinConditionInput | null,
 };
 
 export type ModelStringInput = {
@@ -91,14 +91,14 @@ export type ModelIDInput = {
   size?: ModelSizeInput | null,
 };
 
-export type Pins = {
-  __typename: "Pins",
+export type Pin = {
+  __typename: "Pin",
   id: string,
   title: string,
   description?: string | null,
-  lat: number,
-  lng: string,
-  userID: string,
+  lat?: number | null,
+  lng: number,
+  userId: string,
   createdAt: string,
   updatedAt: string,
   _version: number,
@@ -106,31 +106,31 @@ export type Pins = {
   _lastChangedAt: number,
 };
 
-export type UpdatePinsInput = {
+export type UpdatePinInput = {
   id: string,
   title?: string | null,
   description?: string | null,
   lat?: number | null,
-  lng?: string | null,
-  userID?: string | null,
+  lng?: number | null,
+  userId?: string | null,
   _version?: number | null,
 };
 
-export type DeletePinsInput = {
+export type DeletePinInput = {
   id: string,
   _version?: number | null,
 };
 
 export type CreateUserInput = {
   id?: string | null,
-  username: string,
   email: string,
+  username: string,
   _version?: number | null,
 };
 
 export type ModelUserConditionInput = {
-  username?: ModelStringInput | null,
   email?: ModelStringInput | null,
+  username?: ModelStringInput | null,
   and?: Array< ModelUserConditionInput | null > | null,
   or?: Array< ModelUserConditionInput | null > | null,
   not?: ModelUserConditionInput | null,
@@ -139,9 +139,9 @@ export type ModelUserConditionInput = {
 export type User = {
   __typename: "User",
   id: string,
-  username: string,
   email: string,
-  Pins?: ModelPinsConnection | null,
+  username: string,
+  Pins?: ModelPinConnection | null,
   createdAt: string,
   updatedAt: string,
   _version: number,
@@ -149,17 +149,17 @@ export type User = {
   _lastChangedAt: number,
 };
 
-export type ModelPinsConnection = {
-  __typename: "ModelPinsConnection",
-  items:  Array<Pins | null >,
+export type ModelPinConnection = {
+  __typename: "ModelPinConnection",
+  items:  Array<Pin | null >,
   nextToken?: string | null,
   startedAt?: number | null,
 };
 
 export type UpdateUserInput = {
   id: string,
-  username?: string | null,
   email?: string | null,
+  username?: string | null,
   _version?: number | null,
 };
 
@@ -168,22 +168,22 @@ export type DeleteUserInput = {
   _version?: number | null,
 };
 
-export type ModelPinsFilterInput = {
+export type ModelPinFilterInput = {
   id?: ModelIDInput | null,
   title?: ModelStringInput | null,
   description?: ModelStringInput | null,
   lat?: ModelFloatInput | null,
-  lng?: ModelStringInput | null,
-  userID?: ModelIDInput | null,
-  and?: Array< ModelPinsFilterInput | null > | null,
-  or?: Array< ModelPinsFilterInput | null > | null,
-  not?: ModelPinsFilterInput | null,
+  lng?: ModelFloatInput | null,
+  userId?: ModelIDInput | null,
+  and?: Array< ModelPinFilterInput | null > | null,
+  or?: Array< ModelPinFilterInput | null > | null,
+  not?: ModelPinFilterInput | null,
 };
 
 export type ModelUserFilterInput = {
   id?: ModelIDInput | null,
-  username?: ModelStringInput | null,
   email?: ModelStringInput | null,
+  username?: ModelStringInput | null,
   and?: Array< ModelUserFilterInput | null > | null,
   or?: Array< ModelUserFilterInput | null > | null,
   not?: ModelUserFilterInput | null,
@@ -196,20 +196,20 @@ export type ModelUserConnection = {
   startedAt?: number | null,
 };
 
-export type CreatePinsMutationVariables = {
-  input: CreatePinsInput,
-  condition?: ModelPinsConditionInput | null,
+export type CreatePinMutationVariables = {
+  input: CreatePinInput,
+  condition?: ModelPinConditionInput | null,
 };
 
-export type CreatePinsMutation = {
-  createPins?:  {
-    __typename: "Pins",
+export type CreatePinMutation = {
+  createPin?:  {
+    __typename: "Pin",
     id: string,
     title: string,
     description?: string | null,
-    lat: number,
-    lng: string,
-    userID: string,
+    lat?: number | null,
+    lng: number,
+    userId: string,
     createdAt: string,
     updatedAt: string,
     _version: number,
@@ -218,20 +218,20 @@ export type CreatePinsMutation = {
   } | null,
 };
 
-export type UpdatePinsMutationVariables = {
-  input: UpdatePinsInput,
-  condition?: ModelPinsConditionInput | null,
+export type UpdatePinMutationVariables = {
+  input: UpdatePinInput,
+  condition?: ModelPinConditionInput | null,
 };
 
-export type UpdatePinsMutation = {
-  updatePins?:  {
-    __typename: "Pins",
+export type UpdatePinMutation = {
+  updatePin?:  {
+    __typename: "Pin",
     id: string,
     title: string,
     description?: string | null,
-    lat: number,
-    lng: string,
-    userID: string,
+    lat?: number | null,
+    lng: number,
+    userId: string,
     createdAt: string,
     updatedAt: string,
     _version: number,
@@ -240,20 +240,20 @@ export type UpdatePinsMutation = {
   } | null,
 };
 
-export type DeletePinsMutationVariables = {
-  input: DeletePinsInput,
-  condition?: ModelPinsConditionInput | null,
+export type DeletePinMutationVariables = {
+  input: DeletePinInput,
+  condition?: ModelPinConditionInput | null,
 };
 
-export type DeletePinsMutation = {
-  deletePins?:  {
-    __typename: "Pins",
+export type DeletePinMutation = {
+  deletePin?:  {
+    __typename: "Pin",
     id: string,
     title: string,
     description?: string | null,
-    lat: number,
-    lng: string,
-    userID: string,
+    lat?: number | null,
+    lng: number,
+    userId: string,
     createdAt: string,
     updatedAt: string,
     _version: number,
@@ -271,18 +271,18 @@ export type CreateUserMutation = {
   createUser?:  {
     __typename: "User",
     id: string,
-    username: string,
     email: string,
+    username: string,
     Pins?:  {
-      __typename: "ModelPinsConnection",
+      __typename: "ModelPinConnection",
       items:  Array< {
-        __typename: "Pins",
+        __typename: "Pin",
         id: string,
         title: string,
         description?: string | null,
-        lat: number,
-        lng: string,
-        userID: string,
+        lat?: number | null,
+        lng: number,
+        userId: string,
         createdAt: string,
         updatedAt: string,
         _version: number,
@@ -309,18 +309,18 @@ export type UpdateUserMutation = {
   updateUser?:  {
     __typename: "User",
     id: string,
-    username: string,
     email: string,
+    username: string,
     Pins?:  {
-      __typename: "ModelPinsConnection",
+      __typename: "ModelPinConnection",
       items:  Array< {
-        __typename: "Pins",
+        __typename: "Pin",
         id: string,
         title: string,
         description?: string | null,
-        lat: number,
-        lng: string,
-        userID: string,
+        lat?: number | null,
+        lng: number,
+        userId: string,
         createdAt: string,
         updatedAt: string,
         _version: number,
@@ -347,18 +347,18 @@ export type DeleteUserMutation = {
   deleteUser?:  {
     __typename: "User",
     id: string,
-    username: string,
     email: string,
+    username: string,
     Pins?:  {
-      __typename: "ModelPinsConnection",
+      __typename: "ModelPinConnection",
       items:  Array< {
-        __typename: "Pins",
+        __typename: "Pin",
         id: string,
         title: string,
         description?: string | null,
-        lat: number,
-        lng: string,
-        userID: string,
+        lat?: number | null,
+        lng: number,
+        userId: string,
         createdAt: string,
         updatedAt: string,
         _version: number,
@@ -376,19 +376,19 @@ export type DeleteUserMutation = {
   } | null,
 };
 
-export type GetPinsQueryVariables = {
+export type GetPinQueryVariables = {
   id: string,
 };
 
-export type GetPinsQuery = {
-  getPins?:  {
-    __typename: "Pins",
+export type GetPinQuery = {
+  getPin?:  {
+    __typename: "Pin",
     id: string,
     title: string,
     description?: string | null,
-    lat: number,
-    lng: string,
-    userID: string,
+    lat?: number | null,
+    lng: number,
+    userId: string,
     createdAt: string,
     updatedAt: string,
     _version: number,
@@ -398,22 +398,22 @@ export type GetPinsQuery = {
 };
 
 export type ListPinsQueryVariables = {
-  filter?: ModelPinsFilterInput | null,
+  filter?: ModelPinFilterInput | null,
   limit?: number | null,
   nextToken?: string | null,
 };
 
 export type ListPinsQuery = {
   listPins?:  {
-    __typename: "ModelPinsConnection",
+    __typename: "ModelPinConnection",
     items:  Array< {
-      __typename: "Pins",
+      __typename: "Pin",
       id: string,
       title: string,
       description?: string | null,
-      lat: number,
-      lng: string,
-      userID: string,
+      lat?: number | null,
+      lng: number,
+      userId: string,
       createdAt: string,
       updatedAt: string,
       _version: number,
@@ -426,7 +426,7 @@ export type ListPinsQuery = {
 };
 
 export type SyncPinsQueryVariables = {
-  filter?: ModelPinsFilterInput | null,
+  filter?: ModelPinFilterInput | null,
   limit?: number | null,
   nextToken?: string | null,
   lastSync?: number | null,
@@ -434,15 +434,15 @@ export type SyncPinsQueryVariables = {
 
 export type SyncPinsQuery = {
   syncPins?:  {
-    __typename: "ModelPinsConnection",
+    __typename: "ModelPinConnection",
     items:  Array< {
-      __typename: "Pins",
+      __typename: "Pin",
       id: string,
       title: string,
       description?: string | null,
-      lat: number,
-      lng: string,
-      userID: string,
+      lat?: number | null,
+      lng: number,
+      userId: string,
       createdAt: string,
       updatedAt: string,
       _version: number,
@@ -462,18 +462,18 @@ export type GetUserQuery = {
   getUser?:  {
     __typename: "User",
     id: string,
-    username: string,
     email: string,
+    username: string,
     Pins?:  {
-      __typename: "ModelPinsConnection",
+      __typename: "ModelPinConnection",
       items:  Array< {
-        __typename: "Pins",
+        __typename: "Pin",
         id: string,
         title: string,
         description?: string | null,
-        lat: number,
-        lng: string,
-        userID: string,
+        lat?: number | null,
+        lng: number,
+        userId: string,
         createdAt: string,
         updatedAt: string,
         _version: number,
@@ -503,18 +503,18 @@ export type ListUsersQuery = {
     items:  Array< {
       __typename: "User",
       id: string,
-      username: string,
       email: string,
+      username: string,
       Pins?:  {
-        __typename: "ModelPinsConnection",
+        __typename: "ModelPinConnection",
         items:  Array< {
-          __typename: "Pins",
+          __typename: "Pin",
           id: string,
           title: string,
           description?: string | null,
-          lat: number,
-          lng: string,
-          userID: string,
+          lat?: number | null,
+          lng: number,
+          userId: string,
           createdAt: string,
           updatedAt: string,
           _version: number,
@@ -548,18 +548,18 @@ export type SyncUsersQuery = {
     items:  Array< {
       __typename: "User",
       id: string,
-      username: string,
       email: string,
+      username: string,
       Pins?:  {
-        __typename: "ModelPinsConnection",
+        __typename: "ModelPinConnection",
         items:  Array< {
-          __typename: "Pins",
+          __typename: "Pin",
           id: string,
           title: string,
           description?: string | null,
-          lat: number,
-          lng: string,
-          userID: string,
+          lat?: number | null,
+          lng: number,
+          userId: string,
           createdAt: string,
           updatedAt: string,
           _version: number,
@@ -580,15 +580,15 @@ export type SyncUsersQuery = {
   } | null,
 };
 
-export type OnCreatePinsSubscription = {
-  onCreatePins?:  {
-    __typename: "Pins",
+export type OnCreatePinSubscription = {
+  onCreatePin?:  {
+    __typename: "Pin",
     id: string,
     title: string,
     description?: string | null,
-    lat: number,
-    lng: string,
-    userID: string,
+    lat?: number | null,
+    lng: number,
+    userId: string,
     createdAt: string,
     updatedAt: string,
     _version: number,
@@ -597,15 +597,15 @@ export type OnCreatePinsSubscription = {
   } | null,
 };
 
-export type OnUpdatePinsSubscription = {
-  onUpdatePins?:  {
-    __typename: "Pins",
+export type OnUpdatePinSubscription = {
+  onUpdatePin?:  {
+    __typename: "Pin",
     id: string,
     title: string,
     description?: string | null,
-    lat: number,
-    lng: string,
-    userID: string,
+    lat?: number | null,
+    lng: number,
+    userId: string,
     createdAt: string,
     updatedAt: string,
     _version: number,
@@ -614,15 +614,15 @@ export type OnUpdatePinsSubscription = {
   } | null,
 };
 
-export type OnDeletePinsSubscription = {
-  onDeletePins?:  {
-    __typename: "Pins",
+export type OnDeletePinSubscription = {
+  onDeletePin?:  {
+    __typename: "Pin",
     id: string,
     title: string,
     description?: string | null,
-    lat: number,
-    lng: string,
-    userID: string,
+    lat?: number | null,
+    lng: number,
+    userId: string,
     createdAt: string,
     updatedAt: string,
     _version: number,
@@ -635,18 +635,18 @@ export type OnCreateUserSubscription = {
   onCreateUser?:  {
     __typename: "User",
     id: string,
-    username: string,
     email: string,
+    username: string,
     Pins?:  {
-      __typename: "ModelPinsConnection",
+      __typename: "ModelPinConnection",
       items:  Array< {
-        __typename: "Pins",
+        __typename: "Pin",
         id: string,
         title: string,
         description?: string | null,
-        lat: number,
-        lng: string,
-        userID: string,
+        lat?: number | null,
+        lng: number,
+        userId: string,
         createdAt: string,
         updatedAt: string,
         _version: number,
@@ -668,18 +668,18 @@ export type OnUpdateUserSubscription = {
   onUpdateUser?:  {
     __typename: "User",
     id: string,
-    username: string,
     email: string,
+    username: string,
     Pins?:  {
-      __typename: "ModelPinsConnection",
+      __typename: "ModelPinConnection",
       items:  Array< {
-        __typename: "Pins",
+        __typename: "Pin",
         id: string,
         title: string,
         description?: string | null,
-        lat: number,
-        lng: string,
-        userID: string,
+        lat?: number | null,
+        lng: number,
+        userId: string,
         createdAt: string,
         updatedAt: string,
         _version: number,
@@ -701,18 +701,18 @@ export type OnDeleteUserSubscription = {
   onDeleteUser?:  {
     __typename: "User",
     id: string,
-    username: string,
     email: string,
+    username: string,
     Pins?:  {
-      __typename: "ModelPinsConnection",
+      __typename: "ModelPinConnection",
       items:  Array< {
-        __typename: "Pins",
+        __typename: "Pin",
         id: string,
         title: string,
         description?: string | null,
-        lat: number,
-        lng: string,
-        userID: string,
+        lat?: number | null,
+        lng: number,
+        userId: string,
         createdAt: string,
         updatedAt: string,
         _version: number,

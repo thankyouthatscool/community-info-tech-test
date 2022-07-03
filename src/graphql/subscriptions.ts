@@ -2,15 +2,15 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-export const onCreatePins = /* GraphQL */ `
-  subscription OnCreatePins {
-    onCreatePins {
+export const onCreatePin = /* GraphQL */ `
+  subscription OnCreatePin {
+    onCreatePin {
       id
       title
       description
       lat
       lng
-      userID
+      userId
       createdAt
       updatedAt
       _version
@@ -19,15 +19,15 @@ export const onCreatePins = /* GraphQL */ `
     }
   }
 `;
-export const onUpdatePins = /* GraphQL */ `
-  subscription OnUpdatePins {
-    onUpdatePins {
+export const onUpdatePin = /* GraphQL */ `
+  subscription OnUpdatePin {
+    onUpdatePin {
       id
       title
       description
       lat
       lng
-      userID
+      userId
       createdAt
       updatedAt
       _version
@@ -36,15 +36,15 @@ export const onUpdatePins = /* GraphQL */ `
     }
   }
 `;
-export const onDeletePins = /* GraphQL */ `
-  subscription OnDeletePins {
-    onDeletePins {
+export const onDeletePin = /* GraphQL */ `
+  subscription OnDeletePin {
+    onDeletePin {
       id
       title
       description
       lat
       lng
-      userID
+      userId
       createdAt
       updatedAt
       _version
@@ -57,8 +57,8 @@ export const onCreateUser = /* GraphQL */ `
   subscription OnCreateUser {
     onCreateUser {
       id
-      username
       email
+      username
       Pins {
         items {
           id
@@ -66,7 +66,7 @@ export const onCreateUser = /* GraphQL */ `
           description
           lat
           lng
-          userID
+          userId
           createdAt
           updatedAt
           _version
@@ -88,8 +88,8 @@ export const onUpdateUser = /* GraphQL */ `
   subscription OnUpdateUser {
     onUpdateUser {
       id
-      username
       email
+      username
       Pins {
         items {
           id
@@ -97,7 +97,7 @@ export const onUpdateUser = /* GraphQL */ `
           description
           lat
           lng
-          userID
+          userId
           createdAt
           updatedAt
           _version
@@ -119,8 +119,8 @@ export const onDeleteUser = /* GraphQL */ `
   subscription OnDeleteUser {
     onDeleteUser {
       id
-      username
       email
+      username
       Pins {
         items {
           id
@@ -128,7 +128,7 @@ export const onDeleteUser = /* GraphQL */ `
           description
           lat
           lng
-          userID
+          userId
           createdAt
           updatedAt
           _version

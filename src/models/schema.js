@@ -1,7 +1,7 @@
 export const schema = {
     "models": {
-        "Pins": {
-            "name": "Pins",
+        "Pin": {
+            "name": "Pin",
             "fields": {
                 "id": {
                     "name": "id",
@@ -34,12 +34,12 @@ export const schema = {
                 "lng": {
                     "name": "lng",
                     "isArray": false,
-                    "type": "String",
+                    "type": "Float",
                     "isRequired": true,
                     "attributes": []
                 },
-                "userID": {
-                    "name": "userID",
+                "userId": {
+                    "name": "userId",
                     "isArray": false,
                     "type": "ID",
                     "isRequired": true,
@@ -74,7 +74,7 @@ export const schema = {
                     "properties": {
                         "name": "byUser",
                         "fields": [
-                            "userID"
+                            "userId"
                         ]
                     }
                 },
@@ -106,13 +106,6 @@ export const schema = {
                     "isRequired": true,
                     "attributes": []
                 },
-                "username": {
-                    "name": "username",
-                    "isArray": false,
-                    "type": "String",
-                    "isRequired": true,
-                    "attributes": []
-                },
                 "email": {
                     "name": "email",
                     "isArray": false,
@@ -120,18 +113,25 @@ export const schema = {
                     "isRequired": true,
                     "attributes": []
                 },
+                "username": {
+                    "name": "username",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": true,
+                    "attributes": []
+                },
                 "Pins": {
                     "name": "Pins",
                     "isArray": true,
                     "type": {
-                        "model": "Pins"
+                        "model": "Pin"
                     },
                     "isRequired": false,
                     "attributes": [],
                     "isArrayNullable": true,
                     "association": {
                         "connectionType": "HAS_MANY",
-                        "associatedWith": "userID"
+                        "associatedWith": "userId"
                     }
                 },
                 "createdAt": {
@@ -179,5 +179,5 @@ export const schema = {
     },
     "enums": {},
     "nonModels": {},
-    "version": "63cb6339799b66bd699b1a83191feaf3"
+    "version": "f033a2a4012a28bd3333829ae6eaefa3"
 };

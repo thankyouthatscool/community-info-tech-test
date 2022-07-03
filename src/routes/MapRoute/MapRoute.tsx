@@ -1,9 +1,11 @@
 import { Card, TextField, useMediaQuery, useTheme } from "@mui/material";
+import { DataStore } from "aws-amplify";
 import { useCallback, useEffect, useRef } from "react";
 
 import { Map } from "../../components";
 import { useAppDispatch } from "../../hooks";
-import { setCenter, setZoomLevel } from "../../store";
+import { Pin } from "../../models";
+import { setCenter, setMarkers, setZoomLevel } from "../../store";
 import { ContentWrapper } from "./Styled";
 
 export const MapRoute = () => {
@@ -29,10 +31,21 @@ export const MapRoute = () => {
     );
   }, [dispatch]);
 
+  const handleLoadPins = async () => {
+    try {
+      const res = await DataStore.query(Pin);
+
+      dispatch(setMarkers(res));
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   useEffect(() => {
     if (!initialLoadRef.current) {
       initialLoadRef.current = true;
       handleGetCurrentLocation();
+      handleLoadPins();
     }
   }, [handleGetCurrentLocation, initialLoadRef]);
 

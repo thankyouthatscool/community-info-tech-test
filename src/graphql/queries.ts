@@ -2,15 +2,15 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-export const getPins = /* GraphQL */ `
-  query GetPins($id: ID!) {
-    getPins(id: $id) {
+export const getPin = /* GraphQL */ `
+  query GetPin($id: ID!) {
+    getPin(id: $id) {
       id
       title
       description
       lat
       lng
-      userID
+      userId
       createdAt
       updatedAt
       _version
@@ -21,7 +21,7 @@ export const getPins = /* GraphQL */ `
 `;
 export const listPins = /* GraphQL */ `
   query ListPins(
-    $filter: ModelPinsFilterInput
+    $filter: ModelPinFilterInput
     $limit: Int
     $nextToken: String
   ) {
@@ -32,7 +32,7 @@ export const listPins = /* GraphQL */ `
         description
         lat
         lng
-        userID
+        userId
         createdAt
         updatedAt
         _version
@@ -46,7 +46,7 @@ export const listPins = /* GraphQL */ `
 `;
 export const syncPins = /* GraphQL */ `
   query SyncPins(
-    $filter: ModelPinsFilterInput
+    $filter: ModelPinFilterInput
     $limit: Int
     $nextToken: String
     $lastSync: AWSTimestamp
@@ -63,7 +63,7 @@ export const syncPins = /* GraphQL */ `
         description
         lat
         lng
-        userID
+        userId
         createdAt
         updatedAt
         _version
@@ -79,8 +79,8 @@ export const getUser = /* GraphQL */ `
   query GetUser($id: ID!) {
     getUser(id: $id) {
       id
-      username
       email
+      username
       Pins {
         items {
           id
@@ -88,7 +88,7 @@ export const getUser = /* GraphQL */ `
           description
           lat
           lng
-          userID
+          userId
           createdAt
           updatedAt
           _version
@@ -115,8 +115,8 @@ export const listUsers = /* GraphQL */ `
     listUsers(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
-        username
         email
+        username
         Pins {
           items {
             id
@@ -124,7 +124,7 @@ export const listUsers = /* GraphQL */ `
             description
             lat
             lng
-            userID
+            userId
             createdAt
             updatedAt
             _version
@@ -160,8 +160,8 @@ export const syncUsers = /* GraphQL */ `
     ) {
       items {
         id
-        username
         email
+        username
         Pins {
           items {
             id
@@ -169,7 +169,7 @@ export const syncUsers = /* GraphQL */ `
             description
             lat
             lng
-            userID
+            userId
             createdAt
             updatedAt
             _version
