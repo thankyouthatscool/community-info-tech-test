@@ -12,16 +12,18 @@ interface UserMarkerDetailed {
 
 export interface MapState {
   center: google.maps.LatLngLiteral;
-  zoomLevel: number;
   userMarkers: google.maps.LatLng[];
   userMarkersDetailed: UserMarkerDetailed[];
+  userMarkersFiltered: UserMarkerDetailed[];
+  zoomLevel: number;
 }
 
 const initialState: MapState = {
   center: { lat: -27.5179977, lng: 153.116017 },
-  zoomLevel: 12,
   userMarkers: [],
   userMarkersDetailed: [],
+  userMarkersFiltered: [],
+  zoomLevel: 12,
 };
 
 export const mapSlice = createSlice({
@@ -57,6 +59,12 @@ export const mapSlice = createSlice({
         ({ lat, lng }) => new google.maps.LatLng(lat!, lng)
       );
     },
+    setUserMarkersFiltered: (
+      state,
+      { payload }: PayloadAction<UserMarkerDetailed[]>
+    ) => {
+      state.userMarkersFiltered = payload;
+    },
     setZoomLevel: (state, { payload }: PayloadAction<number>) => {
       state.zoomLevel = payload;
     },
@@ -69,6 +77,7 @@ export const {
   removeUserMarker,
   setCenter,
   setMarkers,
+  setUserMarkersFiltered,
   setZoomLevel,
 } = mapSlice.actions;
 
