@@ -62,18 +62,22 @@ export const App = () => {
   }, [location]);
 
   const loadUserData = async () => {
-    setIsLoading(() => true);
-    try {
-      const user = await DataStore.query(User, (u) =>
-        u.email("eq", "test@email.com")
-      );
+    const localUserEmailAddress = localStorage.getItem("userEmail");
 
-      if (user[0].id) {
-        dispatch(setUsername(user[0].username));
-        dispatch(setUserId(user[0].id));
+    setIsLoading(() => true);
+    if (localUserEmailAddress) {
+      try {
+        const user = await DataStore.query(User, (u) =>
+          u.email("eq", localUserEmailAddress)
+        );
+
+        if (user[0].id) {
+          dispatch(setUsername(user[0].username));
+          dispatch(setUserId(user[0].id));
+        }
+      } catch (err) {
+        console.log(err);
       }
-    } catch (err) {
-      console.log(err);
     }
     setIsLoading(() => false);
   };
@@ -108,7 +112,7 @@ export const App = () => {
             {!username && !isLoading && (
               <Button
                 color="secondary"
-                onClick={() => navigate("/profile")}
+                onClick={() => (mobileMatch ? navigate("/profile") : () => {})}
                 variant="contained"
               >
                 Please Login
@@ -129,8 +133,12 @@ export const App = () => {
       </AppBar>
       <Routes>
         <Route element={<MapRoute />} path="/" />
-        <Route element={<MyPinsRoute />} path="/my-pins" />
-        <Route element={<ProfileRoute />} path="/profile" />
+        {mobileMatch && (
+          <>
+            <Route element={<MyPinsRoute />} path="/my-pins" />
+            <Route element={<ProfileRoute />} path="/profile" />
+          </>
+        )}
         <Route element={<Navigate to="/" />} path="*" />
       </Routes>
       {mobileMatch && (
