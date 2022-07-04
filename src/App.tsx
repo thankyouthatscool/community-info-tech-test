@@ -135,6 +135,7 @@ export const App = () => {
       </Routes>
       {mobileMatch && (
         <BottomNavigation
+          style={{ position: "fixed", bottom: 0, width: "100%" }}
           showLabels
           onChange={(_, newValue) => {
             setBottomNavigationValue(() => newValue);

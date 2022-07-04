@@ -204,7 +204,7 @@ export const Map = () => {
           {userMarkers
             .filter((marker) => {
               return userMarkersFiltered.length
-                ? userMarkersFiltered
+                ? !userMarkersFiltered
                     .map((marker) =>
                       JSON.stringify({ lat: marker.lat, lng: marker.lng })
                     )
@@ -220,6 +220,17 @@ export const Map = () => {
                 />
               );
             })}
+          {userMarkersFiltered.map((marker, i) => {
+            console.log(new google.maps.LatLng(marker.lat!, marker.lng));
+
+            return (
+              <FilteredMarker
+                key={i}
+                onClickCallback={handlePinCallback}
+                position={new google.maps.LatLng(marker.lat!, marker.lng)}
+              />
+            );
+          })}
         </MapComponent>
       </MapWrapper>
       {mobileMatch && (
@@ -414,6 +425,40 @@ const Marker = (options: CustomMarkerOptions) => {
   useEffect(() => {
     if (!marker) {
       setMarker(new google.maps.Marker());
+    }
+
+    return () => {
+      if (marker) {
+        marker.setMap(null);
+      }
+    };
+  }, [marker]);
+
+  useEffect(() => {
+    if (marker) {
+      marker.setOptions(options);
+
+      marker.addListener("click", () => handleMarkerClick(options));
+    }
+
+    return () => {
+      if (marker) google.maps.event.clearListeners(marker!, "click");
+    };
+  }, [marker, options]);
+
+  return null;
+};
+
+export const FilteredMarker = (options: CustomMarkerOptions) => {
+  const [marker, setMarker] = useState<google.maps.Marker>();
+
+  const handleMarkerClick = ({ position }: CustomMarkerOptions) => {
+    options.onClickCallback(position?.toString()!);
+  };
+
+  useEffect(() => {
+    if (!marker) {
+      setMarker(new google.maps.Marker({ label: "👌" }));
     }
 
     return () => {
