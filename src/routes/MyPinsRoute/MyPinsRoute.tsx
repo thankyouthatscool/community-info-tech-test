@@ -1,5 +1,43 @@
+import { DataStore } from "aws-amplify";
+import { useEffect, useRef, useState } from "react";
+
+import { useAppSelector } from "../../hooks";
+import { Pin } from "../../models";
 import { ContentWrapper } from "./Styled";
 
 export const MyPinsRoute = () => {
-  return <ContentWrapper>My Pins</ContentWrapper>;
+  const [userPins, setUserPins] = useState<Pin[]>([]);
+
+  const { userId, username } = useAppSelector(({ user }) => user);
+
+  const initialLoadRef = useRef<boolean>(false);
+
+  const handleLoadUserPins = async () => {
+    try {
+      if (userId && username) {
+        const userPinsResponse = await DataStore.query(Pin, (p) =>
+          p.username("eq", username)
+        );
+
+        setUserPins(() => userPinsResponse);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  useEffect(() => {
+    if (!initialLoadRef.current && userId && username) {
+      initialLoadRef.current = true;
+      handleLoadUserPins();
+    }
+  }, [initialLoadRef, userId, username]);
+
+  return (
+    <ContentWrapper>
+      {userPins.map((pin) => (
+        <div>{pin.title}</div>
+      ))}
+    </ContentWrapper>
+  );
 };

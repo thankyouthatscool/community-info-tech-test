@@ -100,14 +100,26 @@ export const MapRoute = () => {
               }}
               renderTags={(values) =>
                 values.map((pin) => (
-                  <Chip key={pin.id} label={`${pin.title}/${pin.username}`} />
+                  <Chip
+                    key={pin.id}
+                    label={`${pin.title}`}
+                    onDelete={() => {
+                      dispatch(
+                        setUserMarkersFiltered(
+                          userMarkersFiltered.filter(
+                            (marker) => marker.id !== pin.id
+                          )
+                        )
+                      );
+                    }}
+                  />
                 ))
               }
               noOptionsText="No Local Pins"
               multiple
               limitTags={3}
-              onChange={(_, v) => {
-                dispatch(setUserMarkersFiltered(v));
+              onChange={(_, newValues) => {
+                dispatch(setUserMarkersFiltered(newValues));
               }}
               value={userMarkersFiltered}
             />
