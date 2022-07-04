@@ -1,10 +1,11 @@
 import { Status, Wrapper as MapWrapper } from "@googlemaps/react-wrapper";
 import { isLatLngLiteral } from "@googlemaps/typescript-guards";
-import { ArrowBackRounded } from "@mui/icons-material";
+import { ArrowBackRounded, EditRounded } from "@mui/icons-material";
 import {
   Button,
   Drawer,
   IconButton,
+  Snackbar,
   TextField,
   Typography,
   useMediaQuery,
@@ -64,6 +65,7 @@ const formResolver: Resolver<NewPinFormData> = async (values) => {
 
 export const Map = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
+  const [isSnackOpen, setIsSnackOpen] = useState<boolean>(false);
   const [newPin, setNewPin] = useState<google.maps.LatLng | null>(null);
   const [selectedPinCoordinates, setSelectedPinCoordinates] =
     useState<google.maps.LatLng | null>(null);
@@ -74,6 +76,7 @@ export const Map = () => {
     userId,
     userMarkers,
     userMarkersDetailed,
+    userMarkersFiltered,
     username,
     zoomLevel,
   } = useAppSelector(({ map, user }) => ({
@@ -81,6 +84,7 @@ export const Map = () => {
     userId: user.userId,
     userMarkers: map.userMarkers,
     userMarkersDetailed: map.userMarkersDetailed,
+    userMarkersFiltered: map.userMarkersFiltered,
     username: user.username,
     zoomLevel: map.zoomLevel,
   }));
@@ -98,9 +102,13 @@ export const Map = () => {
   });
 
   const onClick = (e: CustomMapMouseEvent) => {
-    dispatch(addUserMarker(e.latLng!));
-    setNewPin(() => e.latLng);
-    setIsDrawerOpen(() => true);
+    if (username) {
+      dispatch(addUserMarker(e.latLng!));
+      setNewPin(() => e.latLng);
+      setIsDrawerOpen(() => true);
+    } else {
+      setIsSnackOpen(() => true);
+    }
   };
 
   const handleLoadPins = async (coordinates: google.maps.LatLngBounds) => {
@@ -172,6 +180,13 @@ export const Map = () => {
 
   return (
     <Wrapper>
+      <Snackbar
+        autoHideDuration={3000}
+        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+        message="Please login to place pin."
+        onClose={() => setIsSnackOpen(() => false)}
+        open={isSnackOpen}
+      />
       <MapWrapper
         apiKey={process.env.REACT_APP_GOOGLE_MAPS_API!}
         render={render}
@@ -186,15 +201,25 @@ export const Map = () => {
           zoom={zoomLevel}
           style={{ flexGrow: "1", height: "100%" }}
         >
-          {userMarkers.map((latLng, i) => {
-            return (
-              <Marker
-                key={i}
-                onClickCallback={handlePinCallback}
-                position={latLng}
-              />
-            );
-          })}
+          {userMarkers
+            .filter((marker) => {
+              return userMarkersFiltered.length
+                ? userMarkersFiltered
+                    .map((marker) =>
+                      JSON.stringify({ lat: marker.lat, lng: marker.lng })
+                    )
+                    .includes(JSON.stringify(marker.toJSON()))
+                : true;
+            })
+            .map((latLng, i) => {
+              return (
+                <Marker
+                  key={i}
+                  onClickCallback={handlePinCallback}
+                  position={latLng}
+                />
+              );
+            })}
         </MapComponent>
       </MapWrapper>
       {mobileMatch && (
@@ -270,7 +295,7 @@ export const Map = () => {
                   <ArrowBackRounded />
                 </IconButton>
               </div>
-              <div style={{ marginLeft: "1rem" }}>
+              <div style={{ flex: 1, marginLeft: "1rem" }}>
                 <Typography variant="h6">
                   {
                     userMarkersDetailed.find(
@@ -300,6 +325,17 @@ export const Map = () => {
                   }
                 </Typography>
               </div>
+              {userMarkersDetailed.find(
+                (pin) =>
+                  pin.lat === selectedPinCoordinates.lat() &&
+                  pin.lng === selectedPinCoordinates.lng()
+              )?.username === username && (
+                <div>
+                  <IconButton color="secondary">
+                    <EditRounded />
+                  </IconButton>
+                </div>
+              )}
             </div>
           )}
         </Drawer>
@@ -333,7 +369,7 @@ const MapComponent = ({
 
   useDeepCompareEffectForMaps(() => {
     if (map) {
-      map.setOptions({ ...options, minZoom: 10 });
+      map.setOptions({ ...options, minZoom: 10, maxZoom: 15 });
     }
   }, [map, options]);
 

@@ -1,24 +1,25 @@
 import {
+  Autocomplete,
   Card,
-  IconButton,
-  InputAdornment,
+  Chip,
   TextField,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { CancelRounded } from "@mui/icons-material";
 import { useCallback, useEffect, useRef } from "react";
 
 import { Map } from "../../components";
 import { useAppDispatch, useAppSelector } from "../../hooks";
-import { setCenter, setSearchTerm, setZoomLevel } from "../../store";
+import { setCenter, setUserMarkersFiltered, setZoomLevel } from "../../store";
 import { ContentWrapper } from "./Styled";
 
 export const MapRoute = () => {
   const initialLoadRef = useRef<boolean>(false);
 
   const dispatch = useAppDispatch();
-  const { searchTerm } = useAppSelector(({ user }) => user);
+  const { userMarkersDetailed, userMarkersFiltered } = useAppSelector(
+    ({ map }) => map
+  );
 
   const theme = useTheme();
   const mobileMatch = useMediaQuery(theme.breakpoints.down("md"));
@@ -61,26 +62,54 @@ export const MapRoute = () => {
           }}
         >
           <Card elevation={9} style={{ flex: 1 }}>
-            <TextField
-              fullWidth
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => {
-                        dispatch(setSearchTerm(""));
-                      }}
-                    >
-                      {searchTerm && <CancelRounded />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
+            <Autocomplete
+              disablePortal
+              disableCloseOnSelect
+              getOptionLabel={(option) =>
+                `${option.title} ${option.username} ${option.description}`
+              }
+              clearOnEscape
+              options={userMarkersDetailed}
+              renderInput={(params) => {
+                return (
+                  <TextField {...params} placeholder="Search Local Pins" />
+                );
               }}
-              onChange={(e) => {
-                dispatch(setSearchTerm(e.target.value));
+              renderOption={(params, option) => {
+                return userMarkersFiltered
+                  .map((pin) => pin.id)
+                  .includes(option.id) ? (
+                  <li key={option.id} />
+                ) : (
+                  <li
+                    key={option.id}
+                    style={{
+                      alignItems: "start",
+                      display: "flex",
+                      flexDirection: "column",
+                    }}
+                    {...params}
+                  >
+                    <div>
+                      <strong>{option.title}</strong>
+                    </div>
+                    <div>{option.description}</div>
+                    <div>{`Posted by: ${option.username}`}</div>
+                  </li>
+                );
               }}
-              placeholder="Search Pins"
-              value={searchTerm}
+              renderTags={(values) =>
+                values.map((pin) => (
+                  <Chip key={pin.id} label={`${pin.title}/${pin.username}`} />
+                ))
+              }
+              noOptionsText="No Local Pins"
+              multiple
+              limitTags={3}
+              onChange={(_, v) => {
+                dispatch(setUserMarkersFiltered(v));
+              }}
+              value={userMarkersFiltered}
             />
           </Card>
         </div>

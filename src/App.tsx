@@ -16,7 +16,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { Amplify, DataStore } from "aws-amplify";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Navigate,
   Routes,
@@ -37,8 +37,6 @@ Amplify.configure(awsConfig);
 export const App = () => {
   const [bottomNavigationValue, setBottomNavigationValue] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
-  const initialLoadRef = useRef<boolean>(false);
 
   const dispatch = useAppDispatch();
   const { username } = useAppSelector(({ user }) => user);
@@ -66,12 +64,14 @@ export const App = () => {
   const loadUserData = async () => {
     setIsLoading(() => true);
     try {
-      initialLoadRef.current = true;
       const user = await DataStore.query(User, (u) =>
         u.email("eq", "test@email.com")
       );
-      dispatch(setUsername(user[0].username));
-      dispatch(setUserId(user[0].id));
+
+      if (user[0].id) {
+        dispatch(setUsername(user[0].username));
+        dispatch(setUserId(user[0].id));
+      }
     } catch (err) {
       console.log(err);
     }
@@ -79,10 +79,10 @@ export const App = () => {
   };
 
   useEffect(() => {
-    if (!initialLoadRef.current) {
-      loadUserData();
-    }
-  }, [initialLoadRef]);
+    // TODO: Fix the loading
+    // [ ]: Will need auth
+    loadUserData();
+  }, []);
 
   const handleGetCurrentLocation = useCallback(() => {
     navigator.geolocation.getCurrentPosition(
@@ -105,12 +105,16 @@ export const App = () => {
         <Toolbar>
           <Typography component="div" variant="h6" sx={{ flexGrow: 1 }}>
             {isLoading && "Loading..."}
-            {username && !isLoading && `Hi, ${username}`}
             {!username && !isLoading && (
-              <Button color="secondary" variant="contained">
+              <Button
+                color="secondary"
+                onClick={() => navigate("/profile")}
+                variant="contained"
+              >
                 Please Login
               </Button>
             )}
+            {username && !isLoading && `Hi, ${username}`}
           </Typography>
           {location.pathname === "/" && (
             <IconButton
