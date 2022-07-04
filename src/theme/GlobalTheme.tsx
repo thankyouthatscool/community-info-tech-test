@@ -22,6 +22,7 @@ export const GlobalTheme = createGlobalStyle`
     min-width: 100%;
 
     padding: 0;
+    position: relative;
 
     width: 100%;
   }
