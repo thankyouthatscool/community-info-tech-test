@@ -29,9 +29,11 @@ import { Pin } from "../../models";
 import {
   addUserMarker,
   addUserMarkerDetailed,
-  setCenter,
   removeUserMarker,
+  setCenter,
   setMarkers,
+  setNewPin,
+  setSelectedPinCoordinates,
   setZoomLevel,
 } from "../../store";
 import { Wrapper } from "./Styled";
@@ -66,28 +68,21 @@ const formResolver: Resolver<NewPinFormData> = async (values) => {
 export const Map = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
   const [isSnackOpen, setIsSnackOpen] = useState<boolean>(false);
-  const [newPin, setNewPin] = useState<google.maps.LatLng | null>(null);
-  const [selectedPinCoordinates, setSelectedPinCoordinates] =
-    useState<google.maps.LatLng | null>(null);
+  // const [_, _] = useState<google.maps.LatLng | null>(
+  //   null
+  // );
 
   const dispatch = useAppDispatch();
+  const { userId, username } = useAppSelector(({ user }) => user);
   const {
     center,
-    userId,
+    newPin,
+    selectedPinCoordinates,
     userMarkers,
     userMarkersDetailed,
     userMarkersFiltered,
-    username,
     zoomLevel,
-  } = useAppSelector(({ map, user }) => ({
-    center: map.center,
-    userId: user.userId,
-    userMarkers: map.userMarkers,
-    userMarkersDetailed: map.userMarkersDetailed,
-    userMarkersFiltered: map.userMarkersFiltered,
-    username: user.username,
-    zoomLevel: map.zoomLevel,
-  }));
+  } = useAppSelector(({ map }) => map);
 
   const theme = useTheme();
   const mobileMatch = useMediaQuery(theme.breakpoints.down("md"));
@@ -102,12 +97,15 @@ export const Map = () => {
   });
 
   const onClick = (e: CustomMapMouseEvent) => {
-    if (username) {
-      dispatch(addUserMarker(e.latLng!));
-      setNewPin(() => e.latLng);
-      setIsDrawerOpen(() => true);
-    } else {
-      setIsSnackOpen(() => true);
+    dispatch(setSelectedPinCoordinates(null));
+    if (!newPin) {
+      if (username) {
+        dispatch(addUserMarker(e.latLng!));
+        dispatch(setNewPin(e.latLng));
+        setIsDrawerOpen(() => true);
+      } else {
+        setIsSnackOpen(() => true);
+      }
     }
   };
 
@@ -126,9 +124,11 @@ export const Map = () => {
   };
 
   const onIdle = (m: google.maps.Map) => {
-    handleLoadPins(m.getBounds()!);
-    dispatch(setCenter(m.getCenter()!.toJSON()));
-    dispatch(setZoomLevel(m.getZoom()!));
+    if (!newPin) {
+      handleLoadPins(m.getBounds()!);
+      dispatch(setCenter(m.getCenter()!.toJSON()));
+      dispatch(setZoomLevel(m.getZoom()!));
+    }
   };
 
   const onSubmit = handleSubmit(async (formData) => {
@@ -157,7 +157,7 @@ export const Map = () => {
             username: username!,
           })
         );
-        setNewPin(() => null);
+        dispatch(setNewPin(null));
         reset();
       } catch (err) {
         console.log(err);
@@ -174,7 +174,7 @@ export const Map = () => {
       .split(", ")
       .map((coordinate) => parseFloat(coordinate));
 
-    setSelectedPinCoordinates(() => new google.maps.LatLng(lat, lng));
+    dispatch(setSelectedPinCoordinates(new google.maps.LatLng(lat, lng)));
     setIsDrawerOpen(() => true);
   };
 
@@ -221,8 +221,6 @@ export const Map = () => {
               );
             })}
           {userMarkersFiltered.map((marker, i) => {
-            console.log(new google.maps.LatLng(marker.lat!, marker.lng));
-
             return (
               <FilteredMarker
                 key={i}
@@ -233,6 +231,7 @@ export const Map = () => {
           })}
         </MapComponent>
       </MapWrapper>
+
       {mobileMatch && (
         <Drawer
           anchor="bottom"
@@ -243,6 +242,7 @@ export const Map = () => {
         >
           {newPin && (
             <form onSubmit={onSubmit} style={{ padding: "1rem" }}>
+              <Typography variant="h6">Add New Pin</Typography>
               <TextField
                 error={!!errors.pinTitle}
                 fullWidth
@@ -271,8 +271,8 @@ export const Map = () => {
                   color="warning"
                   onClick={() => {
                     if (newPin) dispatch(removeUserMarker(newPin!));
-                    setNewPin(() => null);
-                    setSelectedPinCoordinates(() => null);
+                    dispatch(setNewPin(null));
+                    dispatch(setSelectedPinCoordinates(null));
                     setIsDrawerOpen(() => false);
                     reset();
                   }}
@@ -297,8 +297,8 @@ export const Map = () => {
                 <IconButton
                   color="secondary"
                   onClick={() => {
-                    setNewPin(() => null);
-                    setSelectedPinCoordinates(() => null);
+                    dispatch(setNewPin(null));
+                    dispatch(setSelectedPinCoordinates(null));
                     setIsDrawerOpen(() => false);
                     reset();
                   }}

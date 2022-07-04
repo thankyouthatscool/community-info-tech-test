@@ -21,12 +21,12 @@ export const ProfileRoute = () => {
   } = useForm<LoginFormData>();
 
   const handleLogin = handleSubmit(async ({ email }) => {
+    localStorage.setItem("userEmail", email);
+
     try {
       const loginResponse = await DataStore.query(User, (u) =>
         u.email("eq", email)
       );
-
-      console.log(loginResponse);
 
       if (loginResponse.length) {
         const { id, username } = loginResponse[0];

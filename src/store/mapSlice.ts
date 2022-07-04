@@ -12,6 +12,8 @@ interface UserMarkerDetailed {
 
 export interface MapState {
   center: google.maps.LatLngLiteral;
+  newPin: google.maps.LatLng | null;
+  selectedPinCoordinates: google.maps.LatLng | null;
   userMarkers: google.maps.LatLng[];
   userMarkersDetailed: UserMarkerDetailed[];
   userMarkersFiltered: UserMarkerDetailed[];
@@ -20,6 +22,8 @@ export interface MapState {
 
 const initialState: MapState = {
   center: { lat: -27.5179977, lng: 153.116017 },
+  newPin: null,
+  selectedPinCoordinates: null,
   userMarkers: [],
   userMarkersDetailed: [],
   userMarkersFiltered: [],
@@ -59,6 +63,18 @@ export const mapSlice = createSlice({
         ({ lat, lng }) => new google.maps.LatLng(lat!, lng)
       );
     },
+    setNewPin: (
+      state,
+      { payload }: PayloadAction<google.maps.LatLng | null>
+    ) => {
+      state.newPin = payload;
+    },
+    setSelectedPinCoordinates: (
+      state,
+      { payload }: PayloadAction<google.maps.LatLng | null>
+    ) => {
+      state.selectedPinCoordinates = payload;
+    },
     setUserMarkersFiltered: (
       state,
       { payload }: PayloadAction<UserMarkerDetailed[]>
@@ -77,6 +93,8 @@ export const {
   removeUserMarker,
   setCenter,
   setMarkers,
+  setNewPin,
+  setSelectedPinCoordinates,
   setUserMarkersFiltered,
   setZoomLevel,
 } = mapSlice.actions;
