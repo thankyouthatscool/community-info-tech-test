@@ -1,6 +1,6 @@
 import { Status, Wrapper as MapWrapper } from "@googlemaps/react-wrapper";
 import { isLatLngLiteral } from "@googlemaps/typescript-guards";
-import { ArrowBackRounded, EditRounded } from "@mui/icons-material";
+import { CloseRounded, EditRounded } from "@mui/icons-material";
 import {
   Button,
   Drawer,
@@ -228,15 +228,43 @@ export const Map = () => {
               />
             );
           })}
+          {userMarkers
+            .filter((marker) => {
+              return userMarkersDetailed
+                .filter((marker) => marker.userId === userId)
+                .map(({ lat, lng }) => JSON.stringify({ lat, lng }))
+                .includes(JSON.stringify(marker.toJSON()));
+            })
+            .map((marker, i) => {
+              return (
+                <MyMarker
+                  key={i}
+                  onClickCallback={handlePinCallback}
+                  position={marker}
+                />
+              );
+            })}
+          {selectedPinCoordinates && (
+            <SelectedMarker
+              onClickCallback={handlePinCallback}
+              position={selectedPinCoordinates}
+            />
+          )}
         </MapComponent>
       </MapWrapper>
-
       {mobileMatch && (
         <Drawer
           anchor="bottom"
           disableRestoreFocus
-          hideBackdrop
           open={isDrawerOpen}
+          onClose={() => {
+            if (newPin) dispatch(removeUserMarker(newPin!));
+            dispatch(setNewPin(null));
+            dispatch(setSelectedPinCoordinates(null));
+            setIsDrawerOpen(() => false);
+            setIsEdit(() => false);
+            reset();
+          }}
           variant="temporary"
         >
           {newPin && (
@@ -292,19 +320,6 @@ export const Map = () => {
           )}
           {!isEdit && selectedPinCoordinates && (
             <div style={{ display: "flex", padding: "1rem" }}>
-              <div>
-                <IconButton
-                  color="secondary"
-                  onClick={() => {
-                    dispatch(setNewPin(null));
-                    dispatch(setSelectedPinCoordinates(null));
-                    setIsDrawerOpen(() => false);
-                    reset();
-                  }}
-                >
-                  <ArrowBackRounded />
-                </IconButton>
-              </div>
               <div style={{ flex: 1, marginLeft: "1rem" }}>
                 <Typography variant="h6">
                   {
@@ -349,6 +364,19 @@ export const Map = () => {
                   </IconButton>
                 </div>
               )}
+              <div>
+                <IconButton
+                  color="secondary"
+                  onClick={() => {
+                    dispatch(setNewPin(null));
+                    dispatch(setSelectedPinCoordinates(null));
+                    setIsDrawerOpen(() => false);
+                    reset();
+                  }}
+                >
+                  <CloseRounded />
+                </IconButton>
+              </div>
             </div>
           )}
           {isEdit && selectedPinCoordinates && (
@@ -472,6 +500,74 @@ export const FilteredMarker = (options: CustomMarkerOptions) => {
   useEffect(() => {
     if (!marker) {
       setMarker(new google.maps.Marker({ label: "👌" }));
+    }
+
+    return () => {
+      if (marker) {
+        marker.setMap(null);
+      }
+    };
+  }, [marker]);
+
+  useEffect(() => {
+    if (marker) {
+      marker.setOptions(options);
+
+      marker.addListener("click", () => handleMarkerClick(options));
+    }
+
+    return () => {
+      if (marker) google.maps.event.clearListeners(marker!, "click");
+    };
+  }, [marker, options]);
+
+  return null;
+};
+
+export const MyMarker = (options: CustomMarkerOptions) => {
+  const [marker, setMarker] = useState<google.maps.Marker>();
+
+  const handleMarkerClick = ({ position }: CustomMarkerOptions) => {
+    options.onClickCallback(position?.toString()!);
+  };
+
+  useEffect(() => {
+    if (!marker) {
+      setMarker(new google.maps.Marker({ label: "🔷" }));
+    }
+
+    return () => {
+      if (marker) {
+        marker.setMap(null);
+      }
+    };
+  }, [marker]);
+
+  useEffect(() => {
+    if (marker) {
+      marker.setOptions(options);
+
+      marker.addListener("click", () => handleMarkerClick(options));
+    }
+
+    return () => {
+      if (marker) google.maps.event.clearListeners(marker!, "click");
+    };
+  }, [marker, options]);
+
+  return null;
+};
+
+export const SelectedMarker = (options: CustomMarkerOptions) => {
+  const [marker, setMarker] = useState<google.maps.Marker>();
+
+  const handleMarkerClick = ({ position }: CustomMarkerOptions) => {
+    options.onClickCallback(position?.toString()!);
+  };
+
+  useEffect(() => {
+    if (!marker) {
+      setMarker(new google.maps.Marker({ label: "🟢" }));
     }
 
     return () => {

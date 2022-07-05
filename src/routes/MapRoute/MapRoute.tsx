@@ -139,7 +139,7 @@ export const MapRoute = () => {
             padding: "0.5rem",
             position: "absolute",
 
-            width: mobileMatch ? "100%" : "40%",
+            width: mobileMatch ? "100%" : "30%",
 
             zIndex: 1,
           }}
