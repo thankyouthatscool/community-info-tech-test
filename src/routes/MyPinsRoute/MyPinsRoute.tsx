@@ -1,5 +1,6 @@
 import { DataStore } from "aws-amplify";
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { useAppSelector } from "../../hooks";
 import { Pin } from "../../models";
@@ -11,6 +12,8 @@ export const MyPinsRoute = () => {
   const { userId, username } = useAppSelector(({ user }) => user);
 
   const initialLoadRef = useRef<boolean>(false);
+
+  const navigate = useNavigate();
 
   const handleLoadUserPins = async () => {
     try {
@@ -32,6 +35,12 @@ export const MyPinsRoute = () => {
       handleLoadUserPins();
     }
   }, [initialLoadRef, userId, username]);
+
+  useEffect(() => {
+    if (!userId && !username) {
+      navigate("/");
+    }
+  }, [userId, username]);
 
   return (
     <ContentWrapper>

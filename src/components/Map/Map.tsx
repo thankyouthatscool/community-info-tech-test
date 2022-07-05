@@ -26,6 +26,7 @@ import { Resolver, useForm } from "react-hook-form";
 
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import { Pin } from "../../models";
+import { EditPinForm } from "../../routes/MapRoute/EditPinForm";
 import {
   addUserMarker,
   addUserMarkerDetailed,
@@ -68,9 +69,7 @@ const formResolver: Resolver<NewPinFormData> = async (values) => {
 export const Map = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
   const [isSnackOpen, setIsSnackOpen] = useState<boolean>(false);
-  // const [_, _] = useState<google.maps.LatLng | null>(
-  //   null
-  // );
+  const [isEdit, setIsEdit] = useState<boolean>(false);
 
   const dispatch = useAppDispatch();
   const { userId, username } = useAppSelector(({ user }) => user);
@@ -182,7 +181,7 @@ export const Map = () => {
     <Wrapper>
       <Snackbar
         autoHideDuration={3000}
-        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+        anchorOrigin={{ horizontal: "left", vertical: "bottom" }}
         message="Please login to place pin."
         onClose={() => setIsSnackOpen(() => false)}
         open={isSnackOpen}
@@ -291,7 +290,7 @@ export const Map = () => {
               </div>
             </form>
           )}
-          {selectedPinCoordinates && (
+          {!isEdit && selectedPinCoordinates && (
             <div style={{ display: "flex", padding: "1rem" }}>
               <div>
                 <IconButton
@@ -342,11 +341,25 @@ export const Map = () => {
                   pin.lng === selectedPinCoordinates.lng()
               )?.username === username && (
                 <div>
-                  <IconButton color="secondary">
+                  <IconButton
+                    color="secondary"
+                    onClick={() => setIsEdit(() => true)}
+                  >
                     <EditRounded />
                   </IconButton>
                 </div>
               )}
+            </div>
+          )}
+          {isEdit && selectedPinCoordinates && (
+            <div style={{ padding: "1rem" }}>
+              <Typography variant="h6">Edit</Typography>
+              <EditPinForm
+                onCancelCallback={() => {
+                  setIsDrawerOpen(() => false);
+                  setIsEdit(() => false);
+                }}
+              />
             </div>
           )}
         </Drawer>

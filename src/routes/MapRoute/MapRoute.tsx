@@ -1,9 +1,8 @@
-import { ArrowBackRounded, EditRounded } from "@mui/icons-material";
+import { CloseRounded, EditRounded } from "@mui/icons-material";
 import {
   Autocomplete,
   Button,
   Card,
-  CardHeader,
   Chip,
   IconButton,
   TextField,
@@ -12,9 +11,10 @@ import {
   useTheme,
 } from "@mui/material";
 import { DataStore } from "aws-amplify";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Resolver, useForm } from "react-hook-form";
 
+import { EditPinForm, SimpleLoginForm } from ".";
 import { Map } from "../../components";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import { Pin } from "../../models";
@@ -49,6 +49,8 @@ const formResolver: Resolver<NewPinFormData> = async (values) => {
 };
 
 export const MapRoute = () => {
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+
   const initialLoadRef = useRef<boolean>(false);
 
   const dispatch = useAppDispatch();
@@ -58,7 +60,7 @@ export const MapRoute = () => {
     userMarkersDetailed,
     userMarkersFiltered,
   } = useAppSelector(({ map }) => map);
-  const { userId, username } = useAppSelector(({ user }) => user);
+  const { isLoggingIn, userId, username } = useAppSelector(({ user }) => user);
 
   const theme = useTheme();
   const mobileMatch = useMediaQuery(theme.breakpoints.down("md"));
@@ -259,63 +261,83 @@ export const MapRoute = () => {
               </form>
             </Card>
           )}
+          {!mobileMatch && isLoggingIn && <SimpleLoginForm />}
           {!mobileMatch && selectedPinCoordinates && (
             <Card elevation={9} style={{ marginTop: "0.5rem" }}>
-              <div style={{ display: "flex", padding: "1rem" }}>
-                <div>
-                  <IconButton
-                    color="secondary"
-                    onClick={() => {
-                      dispatch(setNewPin(null));
-                      dispatch(setSelectedPinCoordinates(null));
-                      reset();
-                    }}
-                  >
-                    <ArrowBackRounded />
-                  </IconButton>
-                </div>
-                <div style={{ flex: 1, marginLeft: "1rem" }}>
-                  <Typography variant="h6">
+              {isEditing ? (
+                <div style={{ padding: "1rem" }}>
+                  <Typography variant="h5">
+                    Edit:{" "}
                     {
-                      userMarkersDetailed.find(
+                      userMarkersDetailed?.find(
                         (pin) =>
                           pin.lat === selectedPinCoordinates.lat() &&
                           pin.lng === selectedPinCoordinates.lng()
                       )?.title
                     }
                   </Typography>
-                  <Typography variant="body1">
-                    {
-                      userMarkersDetailed.find(
-                        (pin) =>
-                          pin.lat === selectedPinCoordinates.lat() &&
-                          pin.lng === selectedPinCoordinates.lng()
-                      )?.description
-                    }
-                  </Typography>
-                  <Typography variant="body1">
-                    Posted by:{" "}
-                    {
-                      userMarkersDetailed.find(
-                        (pin) =>
-                          pin.lat === selectedPinCoordinates.lat() &&
-                          pin.lng === selectedPinCoordinates.lng()
-                      )?.username
-                    }
-                  </Typography>
+                  <EditPinForm onCancelCallback={setIsEditing} />
                 </div>
-                {userMarkersDetailed.find(
-                  (pin) =>
-                    pin.lat === selectedPinCoordinates.lat() &&
-                    pin.lng === selectedPinCoordinates.lng()
-                )?.username === username && (
+              ) : (
+                <div style={{ display: "flex", padding: "1rem" }}>
+                  <div style={{ flex: 1, marginLeft: "1rem" }}>
+                    <Typography variant="h6">
+                      {
+                        userMarkersDetailed.find(
+                          (pin) =>
+                            pin.lat === selectedPinCoordinates.lat() &&
+                            pin.lng === selectedPinCoordinates.lng()
+                        )?.title
+                      }
+                    </Typography>
+                    <Typography variant="body1">
+                      {
+                        userMarkersDetailed.find(
+                          (pin) =>
+                            pin.lat === selectedPinCoordinates.lat() &&
+                            pin.lng === selectedPinCoordinates.lng()
+                        )?.description
+                      }
+                    </Typography>
+                    <Typography variant="body1">
+                      Posted by:{" "}
+                      {
+                        userMarkersDetailed.find(
+                          (pin) =>
+                            pin.lat === selectedPinCoordinates.lat() &&
+                            pin.lng === selectedPinCoordinates.lng()
+                        )?.username
+                      }
+                    </Typography>
+                  </div>
+                  {userMarkersDetailed.find(
+                    (pin) =>
+                      pin.lat === selectedPinCoordinates.lat() &&
+                      pin.lng === selectedPinCoordinates.lng()
+                  )?.username === username && (
+                    <div>
+                      <IconButton
+                        color="secondary"
+                        onClick={() => setIsEditing(() => true)}
+                      >
+                        <EditRounded />
+                      </IconButton>
+                    </div>
+                  )}
                   <div>
-                    <IconButton color="secondary">
-                      <EditRounded />
+                    <IconButton
+                      color="secondary"
+                      onClick={() => {
+                        dispatch(setNewPin(null));
+                        dispatch(setSelectedPinCoordinates(null));
+                        reset();
+                      }}
+                    >
+                      <CloseRounded />
                     </IconButton>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </Card>
           )}
         </div>

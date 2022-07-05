@@ -1,6 +1,7 @@
 import {
   AccountCircle,
   GpsFixed,
+  LogoutRounded,
   MapRounded,
   PushPinRounded,
 } from "@mui/icons-material";
@@ -29,7 +30,14 @@ import awsConfig from "./aws-exports";
 import { useAppDispatch, useAppSelector } from "./hooks";
 import { User } from "./models";
 import { MapRoute, MyPinsRoute, ProfileRoute } from "./routes";
-import { setCenter, setUserId, setUsername, setZoomLevel } from "./store";
+import {
+  clearUser,
+  setIsLoggingIn,
+  setCenter,
+  setUserId,
+  setUsername,
+  setZoomLevel,
+} from "./store";
 import { RootWrapper } from "./Styled";
 
 Amplify.configure(awsConfig);
@@ -83,8 +91,6 @@ export const App = () => {
   };
 
   useEffect(() => {
-    // TODO: Fix the loading
-    // [ ]: Will need auth
     loadUserData();
   }, []);
 
@@ -112,7 +118,13 @@ export const App = () => {
             {!username && !isLoading && (
               <Button
                 color="secondary"
-                onClick={() => (mobileMatch ? navigate("/profile") : () => {})}
+                onClick={() => {
+                  if (mobileMatch) {
+                    navigate("/profile");
+                  } else {
+                    dispatch(setIsLoggingIn(true));
+                  }
+                }}
                 variant="contained"
               >
                 Please Login
@@ -120,6 +132,16 @@ export const App = () => {
             )}
             {username && !isLoading && `Hi, ${username}`}
           </Typography>
+          {username && (
+            <IconButton
+              color="inherit"
+              onClick={() => {
+                dispatch(clearUser());
+              }}
+            >
+              <LogoutRounded />
+            </IconButton>
+          )}
           {location.pathname === "/" && (
             <IconButton
               color="inherit"
@@ -158,10 +180,18 @@ export const App = () => {
           value={bottomNavigationValue}
         >
           <BottomNavigationAction icon={<MapRounded />} label="Map" />
-          <BottomNavigationAction icon={<PushPinRounded />} label="My Pins" />
+          <BottomNavigationAction
+            disabled={!username}
+            icon={<PushPinRounded />}
+            label="My Pins"
+          />
           <BottomNavigationAction icon={<AccountCircle />} label="Profile" />
         </BottomNavigation>
       )}
     </RootWrapper>
   );
 };
+
+// TODO:
+// [ ]: Figure out log in and out on desktop
+// [ ]: Maybe do something with my pins
