@@ -43,6 +43,11 @@ export const mapSlice = createSlice({
     ) => {
       state.userMarkersDetailed = [...state.userMarkersDetailed, payload];
     },
+    removeDetailedMarker: (state, { payload }: PayloadAction<string>) => {
+      state.userMarkersDetailed = state.userMarkersDetailed.filter(
+        (marker) => marker.id !== payload
+      );
+    },
     removeUserMarker: (
       state,
       { payload }: PayloadAction<google.maps.LatLng>
@@ -84,12 +89,34 @@ export const mapSlice = createSlice({
     setZoomLevel: (state, { payload }: PayloadAction<number>) => {
       state.zoomLevel = payload;
     },
+    updateDetailedMarker: (
+      state,
+      {
+        payload,
+      }: PayloadAction<{
+        description: string | undefined | null;
+        id: string;
+        title: string;
+      }>
+    ) => {
+      const target = state.userMarkersDetailed.find(
+        (marker) => marker.id === payload.id
+      );
+
+      state.userMarkersDetailed = [
+        ...state.userMarkersDetailed.filter(
+          (marker) => marker.id !== payload.id
+        ),
+        { ...target!, description: payload.description, title: payload.title },
+      ];
+    },
   },
 });
 
 export const {
   addUserMarker,
   addUserMarkerDetailed,
+  removeDetailedMarker,
   removeUserMarker,
   setCenter,
   setMarkers,
@@ -97,6 +124,7 @@ export const {
   setSelectedPinCoordinates,
   setUserMarkersFiltered,
   setZoomLevel,
+  updateDetailedMarker,
 } = mapSlice.actions;
 
 export default mapSlice.reducer;

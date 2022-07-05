@@ -1,4 +1,4 @@
-import { Button, Card, TextField } from "@mui/material";
+import { Button, Card, TextField, Typography } from "@mui/material";
 import { DataStore } from "aws-amplify";
 import { useForm } from "react-hook-form";
 
@@ -41,6 +41,13 @@ export const ProfileRoute = () => {
   return (
     <ContentWrapper>
       <Card style={{ padding: "0.5rem" }}>
+        <Typography style={{ margin: "1rem" }} variant="body1">
+          There are no real users, just three different email addresses to
+          demonstrate search and who is able to edit what:
+          <li>user@email.com</li>
+          <li>user1@email.com</li>
+          <li>user2@email.com</li>
+        </Typography>
         <form onSubmit={handleLogin}>
           <TextField
             {...register("email")}
