@@ -7,7 +7,8 @@
 ### Requirements
 
 - Needs `AWS Amplify` to set the project up locally.
-  - Can comment out `Amplify.configure(awsConfig);` in `src/App.tsx` - the app will run, but will not be able to communicate with the backend.
+  - Can comment out `Amplify.configure(awsConfig);` and `import awsConfig from "./aws-exports";` in `src/App.tsx` - the app will run, but will not be able to communicate with the backend.
+- No Google API key - rename `.env.local.example` to `.env.local` and paste key there.
 - `Node v16.14.2` - earlier versions should work also, but not tested.
 - `yarn` installed.
 
