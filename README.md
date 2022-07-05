@@ -15,7 +15,7 @@
 1. Install dependencies with `yarn`.
 2. Start the project with `yarn start`.
 
-## Authentication
+### Authentication
 
 - There's no proper authentication in the project. I have three "users" saved in the database to demonstrate the different rendering of the pins, and who can edit what.
 
